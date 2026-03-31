@@ -27,6 +27,22 @@ fonts/             — ChicagoFLF.ttf (public domain)
 
 ## Installation
 
+### From KDE Look (zip download)
+
+1. Extract the zip archive
+2. Open a terminal inside the extracted folder
+3. Run the installer:
+
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+4. Open **System Settings → Colors & Themes → Global Theme**
+5. Select **NiceOS9 dark** or **NiceOS9 bright** and click Apply
+
+### From GitHub
+
 ```bash
 git clone https://github.com/huppiflupp/NiceOS9-theme.git
 cd NiceOS9-theme
@@ -34,10 +50,10 @@ chmod +x install.sh
 ./install.sh
 ```
 
-Then open **System Settings → Colors & Themes → Global Theme** and select
-**NiceOS9 dark** or **NiceOS9 bright**.
-
 ## Manual installation
+
+If you prefer to install components individually, copy each folder to the
+corresponding location in your home directory:
 
 | Source | Destination |
 |---|---|
@@ -49,4 +65,12 @@ Then open **System Settings → Colors & Themes → Global Theme** and select
 | `icons/nineicons-redux-v0.6` | `~/.local/share/icons/` |
 | `cursors/XCursor-Pro-Red` | `~/.icons/` |
 | `fonts/ChicagoFLF.ttf` | `~/.local/share/fonts/` |
-After copying fonts, run `fc-cache -f ~/.local/share/fonts/`.
+
+After copying fonts run: `fc-cache -f ~/.local/share/fonts/`
+
+Then open **System Settings → Colors & Themes → Global Theme** and select
+**NiceOS9 dark** or **NiceOS9 bright**.
+
+> **Note:** The installer sets up wallpaper paths automatically.
+> If you install manually, apply the theme once via System Settings to
+> trigger the wallpaper setup.
