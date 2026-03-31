@@ -5,7 +5,7 @@ var desktops = desktopsForActivity(currentActivity());
 for (var i = 0; i < desktops.length; i++) {
     desktops[i].wallpaperPlugin = "org.kde.image";
     desktops[i].currentConfigGroup = ["Wallpaper", "org.kde.image", "General"];
-    desktops[i].writeConfig("Image", "file://HOME_PLACEHOLDER/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/wallpaper/indigo-foam.png");
+    desktops[i].writeConfig("Image", "file://HOME_PLACEHOLDER/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/wallpaper/Indigo-Foam.jpg");
     desktops[i].reloadConfig();
 }
 
