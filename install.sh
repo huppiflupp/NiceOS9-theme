@@ -48,6 +48,14 @@ mkdir -p "$HOME/.local/share/wallpapers"
 cp -r "$SCRIPT_DIR/wallpapers/chicago-nine" "$HOME/.local/share/wallpapers/"
 cp -r "$SCRIPT_DIR/wallpapers/nineos" "$HOME/.local/share/wallpapers/"
 
+# Autostart: keep panel non-floating (Plasma 6 resets this on each restart)
+echo "[8/8] Installing panel non-floating autostart fix..."
+mkdir -p "$HOME/.local/bin" "$HOME/.config/autostart"
+cp "$SCRIPT_DIR/autostart/panel-nofloat.sh" "$HOME/.local/bin/"
+chmod +x "$HOME/.local/bin/panel-nofloat.sh"
+sed "s|/home/seeas|$HOME|g" "$SCRIPT_DIR/autostart/panel-nofloat.desktop" \
+    > "$HOME/.config/autostart/panel-nofloat.desktop"
+
 echo ""
 echo "=== Installation complete! ==="
 echo ""

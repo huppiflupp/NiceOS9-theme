@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Panel Non-Floating Fix
+Comment=Ensures panels are non-floating on every login
+Exec=/home/seeas/.local/bin/panel-nofloat.sh
+X-KDE-autostart-phase=2
+X-KDE-autostart-after=panel
