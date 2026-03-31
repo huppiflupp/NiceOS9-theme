@@ -27,9 +27,10 @@ mkdir -p "$HOME/.local/share/color-schemes"
 cp "$SCRIPT_DIR/color-schemes/"*.colors "$HOME/.local/share/color-schemes/"
 
 # Aurorae window decoration (used by NiceOS9 bright)
-echo "[3/8] Installing ChicagoNine window decoration..."
+echo "[3/8] Installing ChicagoNine window decorations..."
 mkdir -p "$HOME/.local/share/aurorae/themes"
 cp -r "$SCRIPT_DIR/aurorae/ChicagoNine" "$HOME/.local/share/aurorae/themes/"
+cp -r "$SCRIPT_DIR/aurorae/ChicagoNineDark" "$HOME/.local/share/aurorae/themes/"
 
 # Icon theme
 echo "[4/8] Installing nineicons-redux icon theme..."
@@ -42,7 +43,7 @@ mkdir -p "$HOME/.icons"
 cp -r "$SCRIPT_DIR/cursors/XCursor-Pro-Red" "$HOME/.icons/"
 
 # Font
-echo "[6/8] Installing Chicago font..."
+echo "[6/8] Installing ChicagoFLF font (public domain by Robin Casady)..."
 mkdir -p "$HOME/.local/share/fonts"
 cp "$SCRIPT_DIR/fonts/"*.ttf "$HOME/.local/share/fonts/"
 fc-cache -f "$HOME/.local/share/fonts/"
