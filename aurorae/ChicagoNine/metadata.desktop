@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Chicago Nine
+Comment=Mac OS 9 Platinum window decoration
+Type=Service
+X-KDE-ServiceTypes=KWin/Decoration
+X-KDE-Library=kwin3_aurorae
+X-KDE-PluginInfo-Name=__aurorae__svg__ChicagoNine
+X-KDE-PluginInfo-Version=1.1
