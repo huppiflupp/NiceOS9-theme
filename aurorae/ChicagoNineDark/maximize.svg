@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" version="1.1">
+  <!-- active normal -->
+  <g id="active-center">
+    <rect x="2" y="2" width="16" height="16" fill="#666666"/>
+    <rect x="3" y="3" width="14" height="14" fill="#BBBBBB"/>
+    <rect x="3" y="3" width="14" height="1" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="3" y="3" width="1" height="14" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="3" y="16" width="14" height="1" fill="#777777" opacity="0.8"/>
+    <rect x="16" y="3" width="1" height="14" fill="#777777" opacity="0.8"/>
+
+        <rect x="5" y="5" width="10" height="10"
+          fill="none" stroke="#444" stroke-width="1.2"/>
+    <rect x="5" y="5" width="10" height="2"
+          fill="#444"/>
+  </g>
+  <!-- active hover -->
+  <g id="hover-center">
+    <rect x="2" y="2" width="16" height="16" fill="#666666"/>
+    <rect x="3" y="3" width="14" height="14" fill="#AAAAAA"/>
+    <rect x="3" y="3" width="14" height="1" fill="#EEEEEE" opacity="0.7"/>
+    <rect x="3" y="3" width="1" height="14" fill="#EEEEEE" opacity="0.7"/>
+    <rect x="3" y="16" width="14" height="1" fill="#666666" opacity="0.8"/>
+    <rect x="16" y="3" width="1" height="14" fill="#666666" opacity="0.8"/>
+
+        <rect x="5" y="5" width="10" height="10"
+          fill="none" stroke="#111" stroke-width="1.5"/>
+    <rect x="5" y="5" width="10" height="2"
+          fill="#111"/>
+  </g>
+  <!-- pressed -->
+  <g id="pressed-center">
+    <rect x="2" y="2" width="16" height="16" fill="#666666"/>
+    <rect x="3" y="3" width="14" height="14" fill="#A0A0A0"/>
+    <rect x="3" y="3" width="14" height="1" fill="#777" opacity="0.8"/>
+    <rect x="3" y="3" width="1" height="14" fill="#777" opacity="0.8"/>
+    <rect x="3" y="16" width="14" height="1" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="16" y="3" width="1" height="14" fill="#E0E0E0" opacity="0.7"/>
+
+        <rect x="5" y="5" width="10" height="10"
+          fill="none" stroke="#111" stroke-width="1.5"/>
+    <rect x="5" y="5" width="10" height="2"
+          fill="#111"/>
+  </g>
+  <!-- inactive -->
+  <g id="inactive-center">
+    <rect x="2" y="2" width="16" height="16" fill="#D0D0D0" stroke="#AAAAAA" stroke-width="1"/>
+        <rect x="5" y="5" width="10" height="10"
+          fill="none" stroke="#AAAAAA" stroke-width="1.2"/>
+    <rect x="5" y="5" width="10" height="2"
+          fill="#AAAAAA"/>
+  </g>
+  <!-- deactivated -->
+  <g id="deactivated-center">
+    <rect x="2" y="2" width="16" height="16" fill="#D8D8D8" stroke="#BBBBBB" stroke-width="1"/>
+        <rect x="5" y="5" width="10" height="10"
+          fill="none" stroke="#AAAAAA" stroke-width="1.2"/>
+    <rect x="5" y="5" width="10" height="2"
+          fill="#AAAAAA"/>
+  </g>
+</svg>
