@@ -2,13 +2,16 @@
 cursorTheme=breeze_cursors
 
 [kdeglobals][General]
-ColorScheme=ArcDark
+ColorScheme=NiceOS9Dark
 
 [kdeglobals][Icons]
 Theme=nineicons-redux-v0.6
 
 [kdeglobals][KDE]
 widgetStyle=Fusion
+
+[kdeglobals][WM]
+activeFont=Chicago,10,-1,5,50,0,0,0,0,0
 
 [kwinrc][DesktopSwitcher]
 LayoutName=org.kde.breeze.desktop
