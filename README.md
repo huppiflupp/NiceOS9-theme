@@ -23,7 +23,6 @@ aurorae/           — ChicagoNine (bright) + ChicagoNineDark (dark) window deco
 icons/             — nineicons-redux-v0.6 icon theme
 cursors/           — XCursor-Pro-Red cursor theme (used by bright)
 fonts/             — ChicagoFLF.ttf (public domain)
-wallpapers/        — chicago-nine/ and nineos/ wallpaper sets
 ```
 
 ## Installation
@@ -50,7 +49,4 @@ Then open **System Settings → Colors & Themes → Global Theme** and select
 | `icons/nineicons-redux-v0.6` | `~/.local/share/icons/` |
 | `cursors/XCursor-Pro-Red` | `~/.icons/` |
 | `fonts/ChicagoFLF.ttf` | `~/.local/share/fonts/` |
-| `wallpapers/chicago-nine` | `~/.local/share/wallpapers/` |
-| `wallpapers/nineos` | `~/.local/share/wallpapers/` |
-
 After copying fonts, run `fc-cache -f ~/.local/share/fonts/`.
