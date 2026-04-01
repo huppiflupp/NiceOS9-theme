@@ -143,7 +143,7 @@ sudo grub2-mkfont -s 14 -n "ChicagoFLF 14" \
 
 ```bash
 # Add or update this line in /etc/default/grub:
-GRUB_THEME=/boot/grub2/themes/niceos9-grub/theme.txt
+GRUB_THEME='/boot/grub2/themes/niceos9-grub/theme.txt'
 
 # Rebuild grub config
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg

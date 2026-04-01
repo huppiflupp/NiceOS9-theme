@@ -130,7 +130,7 @@ if [ -d "$SCRIPT_DIR/grub/niceos9-grub" ]; then
         fi
         echo "      To activate: sudo grub2-set-default 0 && sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
         echo "      Then add/update GRUB_THEME in /etc/default/grub:"
-        echo "        GRUB_THEME=$GRUB_DEST/theme.txt"
+        echo "        GRUB_THEME='$GRUB_DEST/theme.txt'"
     else
         echo "      WARNING: Asset generation failed. Install Pillow and re-run:"
         echo "               pip install Pillow"
@@ -150,6 +150,6 @@ echo "  NiceOS9 dark  → NiceOS9Dark (bundled)"
 echo "  NiceOS9 bright → ChicagoNineLight (bundled)"
 echo ""
 echo "Boot screen:  sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
-echo "Boot menu:    add GRUB_THEME=/boot/grub2/themes/niceos9-grub/theme.txt to /etc/default/grub"
+echo "Boot menu:    add GRUB_THEME='/boot/grub2/themes/niceos9-grub/theme.txt' to /etc/default/grub"
 echo "              then: sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
 echo "Login screen: set via System Settings > Login Screen (SDDM)"
