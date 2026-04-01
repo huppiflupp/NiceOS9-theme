@@ -100,6 +100,21 @@ sudo dracut -f
 
 The `generate-assets.py` script uses the bundled ChicagoFLF font to bake text into PNGs so no font is needed inside the initramfs.
 
+### Applying changes after editing the theme
+
+Plymouth is embedded into the initramfs, so editing source files has no effect until you reinstall and rebuild it. After any change to files in `plymouth/niceos9-plymouth/`:
+
+```bash
+python3 plymouth/niceos9-plymouth/generate-assets.py
+sudo cp plymouth/niceos9-plymouth/*.png \
+        plymouth/niceos9-plymouth/niceos9.script \
+        plymouth/niceos9-plymouth/niceos9-plymouth.plymouth \
+        /usr/share/plymouth/themes/niceos9-plymouth/
+sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f
+```
+
+`dracut -f` rebuilds the initramfs and takes 30–60 seconds. The updated animation appears on the next reboot.
+
 ## Login screen (SDDM)
 
 The `sddm/niceos9-sddm/` theme renders a Mac OS 9 "Finder Greeter": platinum menu bar with live clock, blue Finder desktop, and a Mac OS 9-style login dialog with beveled title bar, user avatar, and styled buttons.
