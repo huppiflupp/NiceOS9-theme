@@ -81,6 +81,16 @@
     <rect x="67" y="83" width="17" height="1"  fill="#444"/>
   </g>
 
+  <!-- ╔══ MAXIMIZED ACTIVE (full-width title bar, no borders) ══════════╗ -->
+  <g id="decoration-maximized-center">
+    <rect x="17" y="17" width="50" height="50" fill="url(#ga)"/>
+  </g>
+
+  <!-- ╔══ MAXIMIZED INACTIVE ═══════════════════════════════════════════╗ -->
+  <g id="decoration-maximized-inactive-center">
+    <rect x="17" y="17" width="50" height="50" fill="url(#gi)"/>
+  </g>
+
   <!-- ╔══ INACTIVE (lighter, flat) ═════════════════════════════════════╗ -->
   <g id="decoration-inactive-topleft">
     <rect x="0" y="0" width="17" height="22" fill="url(#gi)"/>

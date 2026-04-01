@@ -178,3 +178,34 @@ sudo cp -r sddm/niceos9-sddm /usr/share/sddm/themes/
 sudo mkdir -p /etc/sddm.conf.d
 echo -e "[Theme]\nCurrent=niceos9-sddm" | sudo tee /etc/sddm.conf.d/niceos9.conf
 ```
+
+### Nobara / plasmalogin note
+
+Nobara Linux (and some other KDE setups) ship **plasmalogin** instead of SDDM as the default display manager. Plasmalogin uses the same SDDM theme format and reads themes from the same `/usr/share/sddm/themes/` directory, but it reads its own config file — **not** `/etc/sddm.conf`.
+
+This means the KDE System Settings "Login Screen (SDDM)" panel will appear to select NiceOS9 correctly, but the change will have no effect at the actual login screen because plasmalogin ignores `/etc/sddm.conf`.
+
+**Check which display manager you are running:**
+
+```bash
+systemctl status display-manager
+```
+
+If the output shows `plasmalogin.service`, edit `/etc/plasmalogin.conf` instead:
+
+```bash
+sudo nano /etc/plasmalogin.conf
+```
+
+Set the `[Theme]` section to:
+
+```ini
+[Theme]
+Current=niceos9-sddm
+```
+
+Save and reboot. The NiceOS9 login screen will now appear.
+
+### Hardcoded Breeze limitation
+
+Some distributions ship a version of plasmalogin that is **hardcoded to the Breeze theme** and does not read any theme configuration at all. On such systems the NiceOS9 SDDM theme cannot be activated — the login screen will always show Breeze regardless of what is set in `/etc/plasmalogin.conf` or System Settings. No workaround exists short of replacing the display manager entirely.
