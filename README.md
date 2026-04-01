@@ -23,6 +23,9 @@ aurorae/           — ChicagoNine (bright) + ChicagoNineDark (dark) window deco
 icons/             — nineicons-redux-v0.6 icon theme
 cursors/           — XCursor-Pro-Red cursor theme (used by bright)
 fonts/             — ChicagoFLF.ttf (public domain)
+plymouth/          — niceos9-plymouth boot screen (Happy Mac, Plymouth Script plugin)
+sddm/              — niceos9-sddm login screen (Finder Greeter, SDDM/QML)
+previews/          — HTML design mockups for boot + login screen variants
 ```
 
 ## Installation
@@ -74,3 +77,42 @@ Then open **System Settings → Colors & Themes → Global Theme** and select
 > **Note:** The installer sets up wallpaper paths automatically.
 > If you install manually, apply the theme once via System Settings to
 > trigger the wallpaper setup.
+
+## Boot screen (Plymouth)
+
+The `plymouth/niceos9-plymouth/` theme shows a classic compact Mac face ("Happy Mac") on a platinum gray background with an animated candy-stripe progress bar, rendered in ChicagoFLF.
+
+**Install requires root** (Plymouth themes are system-wide):
+
+```bash
+# Generate PNG assets (Pillow required: pip install Pillow)
+python3 plymouth/niceos9-plymouth/generate-assets.py
+
+# Copy to system and activate
+sudo mkdir -p /usr/share/plymouth/themes/niceos9-plymouth
+sudo cp plymouth/niceos9-plymouth/*.png \
+        plymouth/niceos9-plymouth/niceos9.script \
+        plymouth/niceos9-plymouth/niceos9-plymouth.plymouth \
+        /usr/share/plymouth/themes/niceos9-plymouth/
+sudo plymouth-set-default-theme niceos9-plymouth
+sudo dracut -f
+```
+
+The `generate-assets.py` script uses the bundled ChicagoFLF font to bake text into PNGs so no font is needed inside the initramfs.
+
+## Login screen (SDDM)
+
+The `sddm/niceos9-sddm/` theme renders a Mac OS 9 "Finder Greeter": platinum menu bar with live clock, blue Finder desktop, and a Mac OS 9-style login dialog with beveled title bar, user avatar, and styled buttons.
+
+**Install requires root** (SDDM themes are system-wide):
+
+```bash
+sudo cp -r sddm/niceos9-sddm /usr/share/sddm/themes/
+```
+
+**Activate** — either via System Settings → Colors & Themes → Login Screen (SDDM), or directly:
+
+```bash
+sudo mkdir -p /etc/sddm.conf.d
+echo -e "[Theme]\nCurrent=niceos9-sddm" | sudo tee /etc/sddm.conf.d/niceos9.conf
+```

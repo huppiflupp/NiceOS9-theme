@@ -57,6 +57,50 @@ sed "s|/home/seeas|$HOME|g" "$SCRIPT_DIR/autostart/panel-nofloat.desktop" \
     > "$HOME/.config/autostart/panel-nofloat.desktop"
 
 echo ""
+# Plymouth boot theme (niceos9-plymouth)
+echo "[8/9] Installing NiceOS 9 Plymouth boot theme..."
+if [ -d "$SCRIPT_DIR/plymouth/niceos9-plymouth" ]; then
+    PLYMOUTH_THEME_DIR="$SCRIPT_DIR/plymouth/niceos9-plymouth"
+    # Generate PNG assets (requires Pillow)
+    echo "      Generating Plymouth assets (requires Pillow)..."
+    if python3 "$PLYMOUTH_THEME_DIR/generate-assets.py"; then
+        # Install to system themes directory (requires sudo)
+        PLYMOUTH_DEST="/usr/share/plymouth/themes/niceos9-plymouth"
+        echo "      Installing to $PLYMOUTH_DEST (requires sudo)..."
+        sudo mkdir -p "$PLYMOUTH_DEST"
+        sudo cp "$PLYMOUTH_THEME_DIR"/*.png \
+                "$PLYMOUTH_THEME_DIR/niceos9.script" \
+                "$PLYMOUTH_THEME_DIR/niceos9-plymouth.plymouth" \
+                "$PLYMOUTH_DEST/"
+        # Register the theme with Plymouth
+        sudo update-alternatives --install \
+            /usr/share/plymouth/themes/default.plymouth \
+            default.plymouth \
+            "$PLYMOUTH_DEST/niceos9.plymouth" 100 2>/dev/null || true
+        echo "      To activate: sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
+    else
+        echo "      WARNING: Asset generation failed. Install Pillow and re-run:"
+        echo "               pip install Pillow"
+        echo "      Then manually run: python3 $PLYMOUTH_THEME_DIR/generate-assets.py"
+    fi
+else
+    echo "      Plymouth theme source not found, skipping."
+fi
+
+# SDDM login theme (niceos9-sddm)
+echo "[9/9] Installing NiceOS 9 SDDM login theme..."
+if [ -d "$SCRIPT_DIR/sddm/niceos9-sddm" ]; then
+    SDDM_DEST="/usr/share/sddm/themes/niceos9-sddm"
+    echo "      Installing to $SDDM_DEST (requires sudo)..."
+    sudo mkdir -p "$SDDM_DEST"
+    sudo cp -r "$SCRIPT_DIR/sddm/niceos9-sddm"/. "$SDDM_DEST/"
+    echo "      To activate: set Theme=niceos9-sddm in /etc/sddm.conf.d/theme.conf"
+    echo "      Or via System Settings > Colors & Themes > Login Screen (SDDM)"
+else
+    echo "      SDDM theme source not found, skipping."
+fi
+
+echo ""
 echo "=== Installation complete! ==="
 echo ""
 echo "To apply a theme, open System Settings > Colors & Themes > Global Theme"
@@ -65,3 +109,6 @@ echo ""
 echo "Color schemes installed:"
 echo "  NiceOS9 dark  → NiceOS9Dark (bundled)"
 echo "  NiceOS9 bright → ChicagoNineLight (bundled)"
+echo ""
+echo "Boot screen: sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
+echo "Login screen: set via System Settings > Login Screen (SDDM)"

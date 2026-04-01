@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login Screen 2 — Indigo Lock</title>
+<style>
+  @font-face {
+    font-family: 'ChicagoFLF';
+    src: url('../fonts/ChicagoFLF.ttf') format('truetype');
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'ChicagoFLF', 'Chicago', monospace;
+  }
+
+  body {
+    background: #0c0c28;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Indigo-Foam style background */
+  .bg {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 15% 25%, rgba(30,30,100,0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 80% at 85% 75%, rgba(20,20,80,0.9) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 50% 50%, rgba(10,10,50,0.7) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 70% 15%, rgba(40,40,120,0.5) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 45% at 25% 80%, rgba(25,25,90,0.6) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  /* Subtle foam texture via noise-like gradients */
+  .bg::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(ellipse 8% 12% at 12% 18%, rgba(60,60,160,0.15) 0%, transparent 100%),
+      radial-gradient(ellipse 6% 8% at 35% 42%, rgba(50,50,140,0.12) 0%, transparent 100%),
+      radial-gradient(ellipse 10% 7% at 65% 25%, rgba(40,40,120,0.10) 0%, transparent 100%),
+      radial-gradient(ellipse 7% 10% at 80% 60%, rgba(55,55,150,0.14) 0%, transparent 100%),
+      radial-gradient(ellipse 9% 6% at 45% 78%, rgba(35,35,110,0.11) 0%, transparent 100%),
+      radial-gradient(ellipse 5% 9% at 88% 35%, rgba(45,45,130,0.13) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* Center panel */
+  .panel {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 320px;
+  }
+
+  /* Window — ChicagoNineDark style */
+  .window {
+    width: 100%;
+    border: 1px solid #222;
+    box-shadow:
+      inset 1px 1px 0 rgba(150,150,255,0.1),
+      4px 4px 16px rgba(0,0,60,0.8),
+      0 0 40px rgba(0,0,100,0.4);
+  }
+
+  /* Title bar — dark gradient matching ChicagoNineDark SVG */
+  .titlebar {
+    height: 22px;
+    background: linear-gradient(to bottom, #585858 0%, #636363 45%, #5c5c5c 55%, #505050 100%);
+    border-bottom: 1px solid #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0 28px;
+  }
+  .titlebar::after {
+    content: '';
+    position: absolute;
+    top: 1px; left: 0; right: 0; height: 1px;
+    background: rgba(144,144,144,0.35);
+  }
+  /* Buttons — dark style */
+  .tb-btn {
+    position: absolute;
+    top: 4px;
+    width: 14px; height: 14px;
+    background: linear-gradient(135deg, #666, #444);
+    border: 1px solid #222;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.15);
+  }
+  .tb-close { left: 6px; }
+  .tb-min   { left: 24px; }
+
+  .titlebar-title {
+    font-size: 11px;
+    color: #dcdcdc;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Window body */
+  .window-body {
+    background: #24242c;
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    border-left: 4px solid #4a4a4a;
+    border-right: 4px solid #4a4a4a;
+    border-bottom: 5px solid #4a4a4a;
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 2px solid #4a4a4a;
+    box-shadow: 0 0 20px rgba(0,0,170,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    background: linear-gradient(135deg, #34343e, #24242c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .avatar svg { width: 48px; height: 48px; }
+
+  .username {
+    font-size: 14px;
+    color: #e6e6e6;
+    letter-spacing: 0.5px;
+  }
+
+  /* Dark input field */
+  .dark-input {
+    width: 100%;
+    height: 24px;
+    background: #1a1a22;
+    border: 1px solid #0000aa;
+    border-top-color: #000077;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,170,0.2);
+    color: #e6e6e6;
+    font-family: 'ChicagoFLF', monospace;
+    font-size: 11px;
+    padding: 0 8px;
+    outline: none;
+    letter-spacing: 4px;
+  }
+  .dark-input:focus {
+    border-color: #0055cc;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5), 0 0 8px rgba(0,0,170,0.4);
+  }
+
+  .input-label {
+    width: 100%;
+    font-size: 10px;
+    color: #8888a0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: -10px;
+  }
+
+  /* Button row */
+  .btn-row {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .dark-btn {
+    flex: 1;
+    height: 24px;
+    background: linear-gradient(to bottom, #34343e, #2a2a34);
+    border: 1px solid #222;
+    border-top-color: #555;
+    border-left-color: #444;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    color: #c8c8d8;
+    font-family: 'ChicagoFLF', monospace;
+    font-size: 11px;
+    cursor: default;
+    letter-spacing: 0.3px;
+  }
+  .dark-btn.primary {
+    background: linear-gradient(to bottom, #0000cc, #000099);
+    border-color: #000077;
+    border-top-color: #2222ee;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(100,100,255,0.3), 0 0 8px rgba(0,0,170,0.3);
+  }
+
+  /* Clock at bottom */
+  .clock {
+    position: fixed;
+    bottom: 24px;
+    font-size: 11px;
+    color: rgba(150,170,255,0.5);
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <div class="panel">
+    <div class="window">
+      <div class="titlebar">
+        <div class="tb-btn tb-close"></div>
+        <div class="tb-btn tb-min"></div>
+        <div class="titlebar-title">NiceOS 9 — Login</div>
+      </div>
+      <div class="window-body">
+        <!-- User avatar -->
+        <div class="avatar">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="18" r="10" fill="#6688aa"/>
+            <ellipse cx="24" cy="44" rx="16" ry="10" fill="#4466aa"/>
+          </svg>
+        </div>
+
+        <div class="username">User</div>
+
+        <div class="input-label">Password</div>
+        <input class="dark-input" type="password" value="••••••••"/>
+
+        <div class="btn-row">
+          <button class="dark-btn">Guest</button>
+          <button class="dark-btn primary">Log In</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="clock">12:00 AM &nbsp;·&nbsp; Tuesday</div>
+</body>
+</html>

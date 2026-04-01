@@ -1,0 +1,86 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# NiceOS 9 Plymouth Boot Theme
+# "Happy Mac" — Mac OS 9 inspired startup screen
+# ─────────────────────────────────────────────────────────────────────────────
+
+screen_width  = Window.GetWidth();
+screen_height = Window.GetHeight();
+cx = Math.Int(screen_width  / 2);
+cy = Math.Int(screen_height / 2);
+
+# Platinum gray background (matches ChicagoNine bright palette)
+Window.SetBackgroundTopColor(0.831, 0.816, 0.784);      # #d4d0c8
+Window.SetBackgroundBottomColor(0.729, 0.718, 0.706);   # #bababc
+
+# ─── Load pre-generated PNG assets ───────────────────────────────────────────
+mac_img     = Image("happy-mac.png");
+welcome_img = Image("welcome.png");
+track_img   = Image("bar-track.png");
+stripe_img  = Image("bar-stripe.png");
+cover_img   = Image("bar-cover.png");
+version_img = Image("version.png");
+
+# ─── Happy Mac sprite ─────────────────────────────────────────────────────────
+mac_w = mac_img.GetWidth();
+mac_h = mac_img.GetHeight();
+mac_sprite = Sprite(mac_img);
+mac_sprite.SetX(cx - Math.Int(mac_w / 2));
+mac_sprite.SetY(cy - Math.Int(mac_h / 2) - 55);
+mac_sprite.SetZ(2);
+
+# ─── Welcome text ─────────────────────────────────────────────────────────────
+wel_w = welcome_img.GetWidth();
+wel_h = welcome_img.GetHeight();
+welcome_sprite = Sprite(welcome_img);
+welcome_sprite.SetX(cx - Math.Int(wel_w / 2));
+welcome_sprite.SetY(cy + 20);
+welcome_sprite.SetZ(2);
+
+# ─── Progress bar ─────────────────────────────────────────────────────────────
+bar_w = 320;
+bar_h = 16;
+bar_x = cx - Math.Int(bar_w / 2);
+bar_y = cy + 62;
+
+# Track border (322×20 image, centred over the stripe)
+track_sprite = Sprite(track_img);
+track_sprite.SetX(bar_x - 1);
+track_sprite.SetY(bar_y - 2);
+track_sprite.SetZ(3);
+
+# Candy stripe (sits inside the track, fully hidden at start)
+stripe_sprite = Sprite(stripe_img);
+stripe_sprite.SetX(bar_x);
+stripe_sprite.SetY(bar_y);
+stripe_sprite.SetZ(4);
+
+# Platinum cover — starts full-width (hides all stripe), moves right with progress
+cover_current = cover_img.Scale(bar_w, bar_h);
+cover_sprite  = Sprite(cover_current);
+cover_sprite.SetX(bar_x);
+cover_sprite.SetY(bar_y);
+cover_sprite.SetZ(5);
+
+# ─── Version label ────────────────────────────────────────────────────────────
+ver_w = version_img.GetWidth();
+version_sprite = Sprite(version_img);
+version_sprite.SetX(cx - Math.Int(ver_w / 2));
+version_sprite.SetY(screen_height - 52);
+version_sprite.SetZ(2);
+
+# ─── Boot progress callback ───────────────────────────────────────────────────
+fun boot_progress(time, progress) {
+    cover_px = Math.Int(bar_w * (1.0 - progress));
+    if (cover_px <= 0) {
+        cover_sprite.SetOpacity(0);
+    } else {
+        new_cover = cover_img.Scale(cover_px, bar_h);
+        cover_sprite.SetImage(new_cover);
+        cover_sprite.SetX(bar_x + bar_w - cover_px);
+        cover_sprite.SetOpacity(1);
+    }
+}
+
+Plymouth.SetBootProgressFunction(boot_progress);
+Plymouth.SetDisplayNormalFunction(fun() {});
+Plymouth.SetMessageFunction(fun(text) {});

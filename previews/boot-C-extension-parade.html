@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Boot Screen C — Extension Parade</title>
+<style>
+  @font-face {
+    font-family: 'ChicagoFLF';
+    src: url('../fonts/ChicagoFLF.ttf') format('truetype');
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'ChicagoFLF', 'Chicago', monospace;
+  }
+
+  body {
+    background: #c8c4bc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Platinum gradient overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      #dedad2 0%,
+      #c8c4bc 30%,
+      #bbb8b0 70%,
+      #c0bdb5 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Subtle bevel on body edge */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,0.6),
+                inset -2px -2px 0 rgba(0,0,0,0.15);
+    pointer-events: none;
+  }
+
+  .center-block {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* Big Mac icon with system 9 styling */
+  .mac-icon {
+    width: 80px; height: 80px;
+    filter: drop-shadow(1px 3px 5px rgba(0,0,0,0.3));
+  }
+
+  .system-name {
+    font-size: 18px;
+    color: #000;
+    letter-spacing: 0.5px;
+  }
+  .system-sub {
+    font-size: 12px;
+    color: #444;
+    margin-top: -14px;
+  }
+
+  /* Version info box — Mac OS 9 style */
+  .info-box {
+    border: 1px solid #888;
+    background: linear-gradient(to bottom, #e8e4dc, #dedad2);
+    box-shadow: 1px 1px 0 #fff, -1px -1px 0 #999;
+    padding: 8px 24px;
+    font-size: 11px;
+    color: #333;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* Extension parade strip at bottom */
+  .parade-strip {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 44px;
+    background: linear-gradient(to bottom, #aaa8a0, #b0ada5);
+    border-top: 2px solid #888;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    overflow: hidden;
+    gap: 4px;
+  }
+
+  /* Each extension icon */
+  .ext-icon {
+    width: 32px; height: 32px;
+    flex-shrink: 0;
+    opacity: 0;
+    animation: appear 0.2s ease-out forwards;
+  }
+  .ext-icon:nth-child(1)  { animation-delay: 0.1s; }
+  .ext-icon:nth-child(2)  { animation-delay: 0.4s; }
+  .ext-icon:nth-child(3)  { animation-delay: 0.7s; }
+  .ext-icon:nth-child(4)  { animation-delay: 1.0s; }
+  .ext-icon:nth-child(5)  { animation-delay: 1.3s; }
+  .ext-icon:nth-child(6)  { animation-delay: 1.6s; }
+  .ext-icon:nth-child(7)  { animation-delay: 1.9s; }
+  .ext-icon:nth-child(8)  { animation-delay: 2.2s; }
+  .ext-icon:nth-child(9)  { animation-delay: 2.5s; }
+  .ext-icon:nth-child(10) { animation-delay: 2.8s; }
+  .ext-icon:nth-child(11) { animation-delay: 3.1s; }
+  .ext-icon:nth-child(12) { animation-delay: 3.4s; }
+  .ext-icon:nth-child(13) { animation-delay: 3.7s; }
+  .ext-icon:nth-child(14) { animation-delay: 4.0s; }
+  .ext-icon:nth-child(15) { animation-delay: 4.3s; }
+  @keyframes appear {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Extension name label */
+  .ext-label {
+    position: fixed;
+    bottom: 48px;
+    right: 12px;
+    font-size: 10px;
+    color: #333;
+    background: rgba(200,196,188,0.85);
+    padding: 2px 6px;
+    border: 1px solid #999;
+  }
+</style>
+</head>
+<body>
+  <div class="center-block">
+
+    <!-- Classic Mac computer SVG -->
+    <svg class="mac-icon" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#e0dcd4"/>
+          <stop offset="1" stop-color="#b8b4ac"/>
+        </linearGradient>
+      </defs>
+      <!-- Body -->
+      <rect x="8" y="4" width="64" height="52" rx="5" fill="url(#bodyGrad)" stroke="#888" stroke-width="1.5"/>
+      <!-- Screen bezel -->
+      <rect x="14" y="9" width="52" height="38" rx="2" fill="#222" stroke="#666" stroke-width="1"/>
+      <!-- Screen (lit) -->
+      <rect x="16" y="11" width="48" height="34" fill="#c8c4bc"/>
+      <!-- Happy Mac on screen -->
+      <rect x="22" y="15" width="36" height="26" rx="1" fill="#c8c4bc"/>
+      <!-- Eyes -->
+      <rect x="28" y="20" width="6" height="8" rx="1" fill="#111"/>
+      <rect x="46" y="20" width="6" height="8" rx="1" fill="#111"/>
+      <rect x="29" y="21" width="2" height="2" fill="#fff"/>
+      <rect x="47" y="21" width="2" height="2" fill="#fff"/>
+      <!-- Smile -->
+      <path d="M 29 32 Q 40 40 51 32" stroke="#111" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- Stand -->
+      <rect x="30" y="56" width="20" height="8" rx="2" fill="#a8a49c" stroke="#888" stroke-width="1"/>
+      <rect x="20" y="64" width="40" height="5" rx="2" fill="#989490" stroke="#777" stroke-width="1"/>
+      <!-- Disk drive slot -->
+      <rect x="30" y="47" width="16" height="3" rx="1" fill="#666"/>
+    </svg>
+
+    <div class="system-name">NiceOS 9</div>
+    <div class="system-sub">KDE Plasma 6</div>
+
+    <div class="info-box">
+      Built on Linux &nbsp;·&nbsp; Kernel 6.x<br>
+      ChicagoFLF &nbsp;·&nbsp; nineicons-redux
+    </div>
+  </div>
+
+  <!-- Extension parade strip -->
+  <div class="parade-strip">
+    <!-- Mini icons representing "extensions" loading -->
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#0000aa"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="#fff">N</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#444"/><text x="16" y="21" text-anchor="middle" font-size="12" fill="#aaa">🖥</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#222266"/><rect x="8" y="8" width="16" height="2" fill="#aac0ff"/><rect x="8" y="13" width="16" height="2" fill="#aac0ff"/><rect x="8" y="18" width="10" height="2" fill="#aac0ff"/></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#006600"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="#fff">K</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#663300"/><text x="16" y="21" text-anchor="middle" font-size="11" fill="#ffcc88">⚙</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#1a1a5a"/><rect x="8" y="12" width="16" height="8" rx="2" fill="#aac0ff" opacity="0.8"/></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#550055"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="#ffaaff">✦</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#333"/><rect x="10" y="10" width="12" height="12" rx="6" fill="#aaa"/></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#004488"/><text x="16" y="21" text-anchor="middle" font-size="11" fill="#88ccff">Wi-Fi</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#440000"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="#ff8888">♪</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#224400"/><text x="16" y="21" text-anchor="middle" font-size="11" fill="#88ff88">GPU</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#555"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="#ccc">↑↓</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#003355"/><text x="16" y="21" text-anchor="middle" font-size="11" fill="#aaddff">BT</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#444400"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="#ffff88">☀</text></svg>
+    <svg class="ext-icon" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="3" fill="#0000aa"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="#fff">✓</text></svg>
+  </div>
+</body>
+</html>

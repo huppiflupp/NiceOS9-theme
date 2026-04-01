@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=NiceOS 9
+Description=Mac OS 9 inspired "Happy Mac" boot screen for the NiceOS 9 KDE theme
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/niceos9-plymouth
+ScriptFile=/usr/share/plymouth/themes/niceos9-plymouth/niceos9.script

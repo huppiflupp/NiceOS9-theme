@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login Screen 3 — About This Computer</title>
+<style>
+  @font-face {
+    font-family: 'ChicagoFLF';
+    src: url('../fonts/ChicagoFLF.ttf') format('truetype');
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'ChicagoFLF', 'Chicago', monospace;
+  }
+
+  /* Sage green desktop background — bright variant */
+  body {
+    background: #7a9e7e;
+    display: flex;
+    flex-direction: column;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 25% 35%, rgba(120,160,120,0.5) 0%, transparent 70%),
+      radial-gradient(ellipse 70% 60% at 75% 65%, rgba(80,120,85,0.6) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 45% at 50% 15%, rgba(140,180,140,0.3) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Menu bar — bright variant */
+  .menubar {
+    position: relative;
+    z-index: 100;
+    height: 22px;
+    background: linear-gradient(to bottom, #e8e4dc 0%, #d8d4cc 100%);
+    border-bottom: 1px solid #888;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    user-select: none;
+  }
+  .menu-item {
+    padding: 0 10px;
+    height: 22px;
+    line-height: 22px;
+    font-size: 13px;
+    color: #000;
+    cursor: default;
+    white-space: nowrap;
+  }
+  .menu-apple { font-size: 16px; font-family: serif; padding: 0 12px; }
+  .menubar-right {
+    margin-left: auto;
+    font-size: 11px;
+    color: #333;
+    padding-right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .desktop {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* "About This Computer" style dialog — full login */
+  .about-dialog {
+    width: 420px;
+    border: 1px solid #555;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.2), 4px 4px 12px rgba(0,0,0,0.25);
+    background: #c3c3c3;
+  }
+
+  /* Title bar — bright variant (ChicagoNine) */
+  .titlebar {
+    height: 22px;
+    background: linear-gradient(to bottom, #b0b0b0 0%, #a0a0a0 45%, #989898 55%, #909090 100%);
+    border-bottom: 1px solid #555;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0 28px;
+  }
+  .titlebar::after {
+    content: '';
+    position: absolute;
+    top: 1px; left: 0; right: 0; height: 1px;
+    background: rgba(255,255,255,0.4);
+  }
+  .tb-btn {
+    position: absolute;
+    top: 4px;
+    width: 14px; height: 14px;
+    background: linear-gradient(135deg, #d8d4cc, #b8b4ac);
+    border: 1px solid #666;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.5);
+  }
+  .tb-close { left: 6px; }
+  .tb-zoom  { left: 24px; }
+
+  /* Striped Mac OS 9 title bar texture */
+  .tb-stripes {
+    position: absolute;
+    left: 44px; right: 44px; top: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      to right,
+      transparent 0px, transparent 4px,
+      rgba(0,0,0,0.07) 4px, rgba(0,0,0,0.07) 5px
+    );
+  }
+  .titlebar-title {
+    font-size: 12px;
+    color: #000;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    position: relative;
+    z-index: 1;
+    margin: 0 auto;
+  }
+
+  /* Dialog body */
+  .dialog-body {
+    background: #c8c4bc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Top section: Mac + system info side by side */
+  .top-section {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 20px;
+    width: 100%;
+    background: linear-gradient(to bottom, #d4d0c8, #c8c4bc);
+    border-bottom: 1px solid #aaa;
+  }
+
+  .mac-graphic {
+    flex-shrink: 0;
+  }
+
+  .sys-info {
+    flex: 1;
+  }
+  .sys-name {
+    font-size: 16px;
+    color: #000;
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+  .sys-detail {
+    font-size: 10px;
+    color: #333;
+    line-height: 1.8;
+  }
+
+  /* Memory bar (decorative) */
+  .mem-section {
+    width: 100%;
+    padding: 10px 20px;
+    border-bottom: 1px solid #aaa;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .mem-label {
+    font-size: 10px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+  }
+  .mem-track {
+    height: 10px;
+    border: 1px solid #666;
+    background: #fff;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .mem-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      to right, #0000aa 0px, #0000aa 8px, #6666cc 8px, #6666cc 16px
+    );
+    width: 32%;
+  }
+  .mem-free {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    left: 32%;
+    background: #fff;
+  }
+
+  /* User selection list */
+  .user-list {
+    width: 100%;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: linear-gradient(to bottom, #c8c4bc, #c0bdb5);
+    border-bottom: 1px solid #aaa;
+  }
+  .user-list-label {
+    font-size: 10px;
+    color: #333;
+    margin-bottom: 2px;
+  }
+  .user-list-box {
+    border: 1px solid #555;
+    background: #fff;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+    height: 60px;
+    overflow: hidden;
+  }
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #000;
+    cursor: default;
+  }
+  .user-row.selected {
+    background: #0000aa;
+    color: #fff;
+  }
+  .user-icon {
+    width: 20px; height: 20px;
+    background: #888;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Password area */
+  .pwd-section {
+    width: 100%;
+    padding: 10px 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .pwd-label {
+    font-size: 10px;
+    color: #333;
+  }
+  .mac-input {
+    width: 100%;
+    height: 20px;
+    border: 1px solid #555;
+    border-top-color: #888;
+    border-left-color: #888;
+    background: #fff;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.12), 1px 1px 0 rgba(255,255,255,0.7);
+    font-family: 'ChicagoFLF', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    padding: 0 4px;
+    outline: none;
+    color: #000;
+  }
+  .mac-input:focus {
+    outline: 2px solid #0000aa;
+    outline-offset: -1px;
+  }
+
+  /* Bottom buttons */
+  .btn-row {
+    width: 100%;
+    padding: 0 20px 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .mac-btn {
+    height: 22px;
+    padding: 0 18px;
+    border: 1px solid #555;
+    background: linear-gradient(to bottom, #e8e4dc 0%, #c8c4bc 100%);
+    box-shadow: 1px 1px 0 rgba(255,255,255,0.7) inset, 1px 1px 0 rgba(0,0,0,0.15);
+    font-family: 'ChicagoFLF', monospace;
+    font-size: 11px;
+    color: #000;
+    cursor: default;
+  }
+  .mac-btn.default-btn {
+    border: 2px solid #000;
+  }
+</style>
+</head>
+<body>
+  <!-- Menu Bar (bright variant) -->
+  <div class="menubar">
+    <div class="menu-item menu-apple">&#63743;</div>
+    <div class="menu-item">Finder</div>
+    <div class="menu-item">Special</div>
+    <div class="menu-item">Help</div>
+    <div class="menubar-right">
+      <span>12:00 AM</span>
+    </div>
+  </div>
+
+  <div class="desktop">
+    <div class="about-dialog">
+      <!-- Title bar -->
+      <div class="titlebar">
+        <div class="tb-btn tb-close"></div>
+        <div class="tb-btn tb-zoom"></div>
+        <div class="tb-stripes"></div>
+        <div class="titlebar-title">Login</div>
+      </div>
+
+      <div class="dialog-body">
+
+        <!-- Top: Mac graphic + system info -->
+        <div class="top-section">
+          <svg class="mac-graphic" width="72" height="72" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#e0dcd4"/>
+                <stop offset="1" stop-color="#b8b4ac"/>
+              </linearGradient>
+            </defs>
+            <rect x="8" y="4" width="64" height="52" rx="5" fill="url(#bg2)" stroke="#888" stroke-width="1.5"/>
+            <rect x="14" y="9" width="52" height="38" rx="2" fill="#222" stroke="#666" stroke-width="1"/>
+            <rect x="16" y="11" width="48" height="34" fill="#c3c3c3"/>
+            <!-- Happy Mac -->
+            <rect x="28" y="20" width="6" height="8" rx="1" fill="#111"/>
+            <rect x="46" y="20" width="6" height="8" rx="1" fill="#111"/>
+            <rect x="29" y="21" width="2" height="2" fill="#fff"/>
+            <rect x="47" y="21" width="2" height="2" fill="#fff"/>
+            <path d="M 29 32 Q 40 40 51 32" stroke="#111" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- Stand -->
+            <rect x="30" y="56" width="20" height="8" rx="2" fill="#a8a49c" stroke="#888" stroke-width="1"/>
+            <rect x="20" y="64" width="40" height="5" rx="2" fill="#989490" stroke="#777" stroke-width="1"/>
+          </svg>
+
+          <div class="sys-info">
+            <div class="sys-name">NiceOS 9</div>
+            <div class="sys-detail">
+              KDE Plasma 6<br>
+              ChicagoFLF &amp; nineicons-redux<br>
+              Linux Kernel 6.x
+            </div>
+          </div>
+        </div>
+
+        <!-- Memory bar (decorative) -->
+        <div class="mem-section">
+          <div class="mem-label">
+            <span>Memory</span>
+            <span>32 MB used &nbsp; 96 MB free</span>
+          </div>
+          <div class="mem-track">
+            <div class="mem-fill"></div>
+          </div>
+        </div>
+
+        <!-- User list -->
+        <div class="user-list">
+          <div class="user-list-label">Select a user to log in:</div>
+          <div class="user-list-box">
+            <div class="user-row selected">
+              <div class="user-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5" fill="#aac0ff"/><ellipse cx="12" cy="22" rx="8" ry="5" fill="#aac0ff"/></svg>
+              </div>
+              User
+            </div>
+            <div class="user-row">
+              <div class="user-icon" style="background:#aaa;">
+                <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5" fill="#eee"/><ellipse cx="12" cy="22" rx="8" ry="5" fill="#eee"/></svg>
+              </div>
+              Guest
+            </div>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="pwd-section">
+          <div class="pwd-label">Password:</div>
+          <input class="mac-input" type="password" value="••••••••"/>
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-row">
+          <button class="mac-btn">Restart</button>
+          <button class="mac-btn">Shut Down</button>
+          <button class="mac-btn default-btn">Log In</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>
