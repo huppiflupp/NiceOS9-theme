@@ -33,14 +33,14 @@ wel_w = welcome_img.GetWidth();
 wel_h = welcome_img.GetHeight();
 welcome_sprite = Sprite(welcome_img);
 welcome_sprite.SetX(cx - Math.Int(wel_w / 2));
-welcome_sprite.SetY(cy + 20);
+welcome_sprite.SetY(cy + 80);
 welcome_sprite.SetZ(2);
 
 # ─── Progress bar ─────────────────────────────────────────────────────────────
 bar_w = 320;
 bar_h = 16;
 bar_x = cx - Math.Int(bar_w / 2);
-bar_y = cy + 62;
+bar_y = cy + 120;
 
 # Track border (322×20 image, centred over the stripe)
 track_sprite = Sprite(track_img);
