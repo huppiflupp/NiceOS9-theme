@@ -100,6 +100,45 @@ else
     echo "      SDDM theme source not found, skipping."
 fi
 
+# GRUB boot menu theme (niceos9-grub)
+echo "[9/10] Installing NiceOS 9 GRUB boot menu theme..."
+if [ -d "$SCRIPT_DIR/grub/niceos9-grub" ]; then
+    GRUB_THEME_DIR="$SCRIPT_DIR/grub/niceos9-grub"
+    echo "      Generating GRUB assets (requires Pillow)..."
+    if python3 "$GRUB_THEME_DIR/generate-assets.py"; then
+        GRUB_DEST="/boot/grub2/themes/niceos9-grub"
+        echo "      Installing to $GRUB_DEST (requires sudo)..."
+        sudo mkdir -p "$GRUB_DEST"
+        sudo cp "$GRUB_THEME_DIR"/*.png \
+                "$GRUB_THEME_DIR/theme.txt" \
+                "$GRUB_DEST/"
+        # Generate PF2 font (grub-mkfont required — usually in grub2-tools)
+        if command -v grub-mkfont &>/dev/null || command -v grub2-mkfont &>/dev/null; then
+            MKFONT=$(command -v grub2-mkfont || command -v grub-mkfont)
+            FONT_TTF="$SCRIPT_DIR/fonts/ChicagoFLF.ttf"
+            echo "      Generating GRUB fonts from ChicagoFLF..."
+            sudo "$MKFONT" -s 18 -n "ChicagoFLF 18" -o "$GRUB_DEST/ChicagoFLF-18.pf2" "$FONT_TTF"
+            sudo "$MKFONT" -s 14 -n "ChicagoFLF 14" -o "$GRUB_DEST/ChicagoFLF-14.pf2" "$FONT_TTF"
+        else
+            echo "      WARNING: grub2-mkfont not found — fonts will fall back to GRUB default."
+            echo "               Install with: sudo dnf install grub2-tools  (or grub-tools)"
+            # Patch theme.txt to use a safe fallback font
+            sudo sed -i \
+                -e 's/item_font.*=.*/item_font = "Unknown Regular 16"/' \
+                -e 's/font.*=.*"ChicagoFLF 14"$/font = "Unknown Regular 14"/' \
+                "$GRUB_DEST/theme.txt"
+        fi
+        echo "      To activate: sudo grub2-set-default 0 && sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
+        echo "      Then add/update GRUB_THEME in /etc/default/grub:"
+        echo "        GRUB_THEME=$GRUB_DEST/theme.txt"
+    else
+        echo "      WARNING: Asset generation failed. Install Pillow and re-run:"
+        echo "               pip install Pillow"
+    fi
+else
+    echo "      GRUB theme source not found, skipping."
+fi
+
 echo ""
 echo "=== Installation complete! ==="
 echo ""
@@ -110,5 +149,7 @@ echo "Color schemes installed:"
 echo "  NiceOS9 dark  → NiceOS9Dark (bundled)"
 echo "  NiceOS9 bright → ChicagoNineLight (bundled)"
 echo ""
-echo "Boot screen: sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
+echo "Boot screen:  sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
+echo "Boot menu:    add GRUB_THEME=/boot/grub2/themes/niceos9-grub/theme.txt to /etc/default/grub"
+echo "              then: sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
 echo "Login screen: set via System Settings > Login Screen (SDDM)"

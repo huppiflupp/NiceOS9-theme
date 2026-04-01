@@ -1,0 +1,43 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# NiceOS 9 GRUB Theme
+# Mac OS 9 Platinum inspired boot menu
+# ─────────────────────────────────────────────────────────────────────────────
+
+title-text:    ""
+desktop-image: "background.png"
+desktop-color: "#c4c0b8"
+
+# ── Boot menu ─────────────────────────────────────────────────────────────────
+# Positioned below the "Select a startup volume:" subtitle in the background art.
+# The background is designed for 1920×1080; adjust top/left if your resolution
+# differs significantly.
+
++ boot_menu {
+    left                       = 50%-270
+    top                        = 72%
+    width                      = 540
+    height                     = 200
+    item_font                  = "ChicagoFLF 18"
+    item_color                 = "#111111"
+    selected_item_color        = "#ffffff"
+    icon_width                 = 0
+    icon_height                = 0
+    item_height                = 34
+    item_padding               = 14
+    item_spacing               = 0
+    menu_pixmap_style          = "menu_*.png"
+    selected_item_pixmap_style = "select_*.png"
+    scrollbar                  = false
+}
+
+# ── Countdown label ───────────────────────────────────────────────────────────
++ label {
+    top    = 72%+212
+    left   = 50%-270
+    width  = 540
+    align  = "center"
+    id     = "__timeout__"
+    text   = "Starting in %d seconds"
+    font   = "ChicagoFLF 14"
+    color  = "#58544c"
+}

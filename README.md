@@ -24,6 +24,7 @@ icons/             — nineicons-redux-v0.6 icon theme
 cursors/           — XCursor-Pro-Red cursor theme (used by bright)
 fonts/             — ChicagoFLF.ttf (public domain)
 plymouth/          — niceos9-plymouth boot screen (Happy Mac, Plymouth Script plugin)
+grub/              — niceos9-grub boot menu (Mac OS 9 Platinum desktop background)
 sddm/              — niceos9-sddm login screen (Finder Greeter, SDDM/QML)
 previews/          — HTML design mockups for boot + login screen variants
 ```
@@ -114,6 +115,52 @@ sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f
 ```
 
 `dracut -f` rebuilds the initramfs and takes 30–60 seconds. The updated animation appears on the next reboot.
+
+## GRUB boot menu
+
+The `grub/niceos9-grub/` theme shows a 1920×1080 platinum Mac OS 9 desktop as the GRUB background: a menu bar at the top, a large Happy Mac centred on screen, the "NiceOS 9" title, and a "Select a startup volume:" prompt — with the boot entry list appearing below as a Mac OS 9-style dialog window.
+
+**Install requires root** (GRUB themes are system-wide):
+
+```bash
+# Generate PNG assets (Pillow required: pip install Pillow)
+python3 grub/niceos9-grub/generate-assets.py
+
+# Copy to system
+sudo mkdir -p /boot/grub2/themes/niceos9-grub
+sudo cp grub/niceos9-grub/*.png \
+        grub/niceos9-grub/theme.txt \
+        /boot/grub2/themes/niceos9-grub/
+
+# Generate PF2 fonts from ChicagoFLF (grub2-tools required)
+sudo grub2-mkfont -s 18 -n "ChicagoFLF 18" \
+    -o /boot/grub2/themes/niceos9-grub/ChicagoFLF-18.pf2 fonts/ChicagoFLF.ttf
+sudo grub2-mkfont -s 14 -n "ChicagoFLF 14" \
+    -o /boot/grub2/themes/niceos9-grub/ChicagoFLF-14.pf2 fonts/ChicagoFLF.ttf
+```
+
+**Activate** — add the theme line to `/etc/default/grub`, then rebuild:
+
+```bash
+# Add or update this line in /etc/default/grub:
+GRUB_THEME=/boot/grub2/themes/niceos9-grub/theme.txt
+
+# Rebuild grub config
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+```
+
+> **Fedora / Nobara note:** the config file is `/boot/grub2/grub.cfg` on BIOS and
+> `/boot/efi/EFI/fedora/grub.cfg` on UEFI. Use whichever matches your system.
+
+### Applying changes after editing the theme
+
+GRUB themes are read at boot time from disk, so there is **no initramfs rebuild** needed — but you must re-run `grub2-mkconfig` whenever you change `theme.txt`, and re-copy the PNGs (and re-run `generate-assets.py`) whenever you change the artwork:
+
+```bash
+python3 grub/niceos9-grub/generate-assets.py
+sudo cp grub/niceos9-grub/*.png /boot/grub2/themes/niceos9-grub/
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+```
 
 ## Login screen (SDDM)
 
