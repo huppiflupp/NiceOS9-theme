@@ -12,7 +12,7 @@ for (var i = 0; i < allDesktops.length; i++) {
 // Panel
 var panel = new Panel;
 panel.location = "top";
-panel.height = 32;
+panel.height = PANEL_HEIGHT_PLACEHOLDER;
 panel.floating = false;
 panel.hiding = "none";
 panel.alignment = "center";

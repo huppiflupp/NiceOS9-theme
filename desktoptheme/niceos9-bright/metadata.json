@@ -1,0 +1,17 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "huppiflupp"
+            }
+        ],
+        "Category": "",
+        "Description": "NiceOS9 Bright desktop theme with a classic Mac OS 8/9 style panel",
+        "EnabledByDefault": true,
+        "Id": "niceos9-bright",
+        "License": "GPLv2+",
+        "Name": "NiceOS9 Bright",
+        "Version": "2.1"
+    },
+    "X-Plasma-API": "6.0"
+}

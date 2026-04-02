@@ -1,4 +1,4 @@
-# NiceOS9 KDE Plasma Theme — v2.0
+# NiceOS9 KDE Plasma Theme — v5.0.0
 
 Two KDE Plasma look-and-feel themes inspired by classic Mac OS 9 aesthetics.
 
@@ -22,7 +22,8 @@ look-and-feel/     — NiceOS9 dark + NiceOS9 bright global theme packages
     lockscreen/    — Mac OS 9 Finder Greeter for kscreenlocker (plasmalogin)
     wallpaper/     — Indigo-Foam.jpg / Sage-Foam.jpg
     layouts/       — desktop layout JS
-plasma/            — niceos9-dark + niceos9-bright Plasma shell themes (panel/taskbar colors)
+desktoptheme/      — niceos9-dark + niceos9-bright Plasma desktop themes (panel/taskbar assets + colors)
+plasma/            — legacy shell theme sources kept for compatibility
 color-schemes/     — NiceOS9Dark.colors, ChicagoNineLight.colors
 aurorae/           — ChicagoNine (bright) + ChicagoNineDark (dark) window decorations
 icons/             — nineicons-redux-v0.6 icon theme
@@ -68,8 +69,8 @@ corresponding location in your home directory:
 |---|---|
 | `look-and-feel/NiceOS9 dark` | `~/.local/share/plasma/look-and-feel/` |
 | `look-and-feel/NiceOS9 bright` | `~/.local/share/plasma/look-and-feel/` |
-| `plasma/niceos9-dark` | `~/.local/share/plasma/desktoptheme/` |
-| `plasma/niceos9-bright` | `~/.local/share/plasma/desktoptheme/` |
+| `desktoptheme/niceos9-dark` | `~/.local/share/plasma/desktoptheme/` |
+| `desktoptheme/niceos9-bright` | `~/.local/share/plasma/desktoptheme/` |
 | `color-schemes/*.colors` | `~/.local/share/color-schemes/` |
 | `aurorae/ChicagoNine` | `~/.local/share/aurorae/themes/` |
 | `aurorae/ChicagoNineDark` | `~/.local/share/aurorae/themes/` |
@@ -95,18 +96,19 @@ application color scheme and the look-and-feel package itself.
 
 | Theme | Plasma shell | Panel background | Panel text |
 |---|---|---|---|
-| **NiceOS9 dark** | niceos9-dark | `#28261e` dark warm charcoal | cream white |
+| **NiceOS9 dark** | niceos9-dark | `#2c2a28` dark warm charcoal | cream white |
 | **NiceOS9 bright** | niceos9-bright | `#c8c4bc` Platinum gray | black |
 
-`install.sh` copies both shell themes to `~/.local/share/plasma/desktoptheme/`.
+`install.sh` copies both desktop themes to `~/.local/share/plasma/desktoptheme/`.
 The `defaults` files in each look-and-feel package reference them so they apply
 automatically when you select the global theme.
 
 The panel is also forced to **non-floating** mode by the autostart script
 `autostart/panel-nofloat.sh` (installed to `~/.local/bin/` and registered in
 `~/.config/autostart/`). Plasma 6 resets floating mode on each session start, so
-the autostart runs 4 seconds after login and locks `floating = false` and
-`height = 32` for all panels.
+the autostart runs 4 seconds after login and keeps only `floating = false`.
+Panel height is now user-editable after install. The installer also supports an
+initial default height with `NICEOS9_PANEL_HEIGHT=40 ./install.sh`.
 
 ### Adjusting panel colors
 

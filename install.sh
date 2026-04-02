@@ -6,9 +6,20 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PANEL_HEIGHT="${NICEOS9_PANEL_HEIGHT:-32}"
 
 echo "=== NiceOS9 KDE Theme Installer ==="
 echo ""
+
+echo "Removing stale files from previous NiceOS9 installations..."
+rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark"
+rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright"
+rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-bright"
+rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-dark"
+rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNine"
+rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNineDark"
+rm -rf "$HOME/.local/share/icons/nineicons-redux-v0.6"
+rm -rf "$HOME/.icons/XCursor-Pro-Red"
 
 # Look and Feel packages
 echo "[1/8] Installing look-and-feel packages..."
@@ -18,6 +29,12 @@ cp -r "$SCRIPT_DIR/look-and-feel/NiceOS9 bright" "$HOME/.local/share/plasma/look
 
 # Inject actual home path into layout.js wallpaper paths
 sed -i "s|HOME_PLACEHOLDER|$HOME|g" \
+    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
+    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/layouts/org.kde.plasma.desktop-layout.js"
+
+# Set the initial panel height for newly applied layouts.
+# This only affects the default layout; panel resizing in Plasma remains editable.
+sed -i "s|PANEL_HEIGHT_PLACEHOLDER|$PANEL_HEIGHT|g" \
     "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
     "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/layouts/org.kde.plasma.desktop-layout.js"
 
@@ -38,11 +55,11 @@ kwriteconfig6 --file kscreenlockerrc \
     --key "PreviewImage" "$_KSL_WALL"
 unset _KSL_WALL
 
-# Plasma shell themes (niceos9-dark and niceos9-bright)
-echo "[2/8] Installing Plasma shell themes..."
+# Plasma desktop themes (niceos9-dark and niceos9-bright)
+echo "[2/8] Installing Plasma desktop themes..."
 mkdir -p "$HOME/.local/share/plasma/desktoptheme"
-cp -r "$SCRIPT_DIR/plasma/niceos9-bright" "$HOME/.local/share/plasma/desktoptheme/"
-cp -r "$SCRIPT_DIR/plasma/niceos9-dark" "$HOME/.local/share/plasma/desktoptheme/"
+cp -r "$SCRIPT_DIR/desktoptheme/niceos9-bright" "$HOME/.local/share/plasma/desktoptheme/"
+cp -r "$SCRIPT_DIR/desktoptheme/niceos9-dark" "$HOME/.local/share/plasma/desktoptheme/"
 
 # Color schemes
 echo "[3/8] Installing color schemes (application window palette)..."
@@ -167,6 +184,8 @@ echo "=== Installation complete! ==="
 echo ""
 echo "To apply a theme, open System Settings > Colors & Themes > Global Theme"
 echo "and select 'NiceOS9 dark' or 'NiceOS9 bright'."
+echo "Initial panel height used for new layouts: $PANEL_HEIGHT"
+echo "Override it during install with: NICEOS9_PANEL_HEIGHT=40 ./install.sh"
 echo ""
 echo "Color schemes installed:"
 echo "  NiceOS9 dark  → NiceOS9Dark (bundled)"
