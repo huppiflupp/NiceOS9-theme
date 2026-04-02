@@ -18,7 +18,6 @@ Rectangle {
     readonly property color platinumLight: "#e8e4dc"
     readonly property color platinumDark:  "#a8a4a0"
     readonly property color accentBlue:    "#0000aa"
-    readonly property color finderBlue:    "#6b8aad"   // Mac OS 9 Finder desktop
 
     // ── Typography ─────────────────────────────────────────────────────────
     property string cf: chicagoFont.status === FontLoader.Ready
@@ -29,35 +28,26 @@ Rectangle {
         source: "ChicagoFLF.ttf"
     }
 
-    // ── Finder Desktop Background ──────────────────────────────────────────
+    // ── Background: wallpaper with gradient fallback ───────────────────────
+    // Fallback gradient (always rendered beneath the wallpaper)
     gradient: Gradient {
         GradientStop { position: 0.0; color: "#7898b8" }
         GradientStop { position: 1.0; color: "#4a6888" }
     }
 
-    // Foam-like radial blobs to echo the Indigo-Foam wallpaper character
-    Canvas {
-        id: desktopCanvas
+    Image {
+        id: wallpaper
         anchors.fill: parent
-        renderStrategy: Canvas.Threaded
-        onPaint: {
-            var ctx = getContext("2d")
-            var blobs = [
-                { x: 0.18, y: 0.28, r: 0.42, a: 0.14 },
-                { x: 0.78, y: 0.68, r: 0.38, a: 0.12 },
-                { x: 0.55, y: 0.12, r: 0.30, a: 0.09 },
-                { x: 0.30, y: 0.82, r: 0.28, a: 0.10 },
-                { x: 0.85, y: 0.22, r: 0.24, a: 0.08 },
-            ]
-            blobs.forEach(function(b) {
-                var grd = ctx.createRadialGradient(
-                    b.x * width, b.y * height, 0,
-                    b.x * width, b.y * height, b.r * width)
-                grd.addColorStop(0, "rgba(200,220,255," + b.a + ")")
-                grd.addColorStop(1, "rgba(0,0,0,0)")
-                ctx.fillStyle = grd
-                ctx.fillRect(0, 0, width, height)
-            })
+        source: "background.jpg"
+        fillMode: Image.PreserveAspectCrop
+        // Slight darkening overlay so the Platinum chrome pops
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            Rectangle {
+                anchors.fill: parent
+                color: "#18000000"
+            }
         }
     }
 
@@ -123,12 +113,12 @@ Rectangle {
         // Clock (right side)
         Text {
             id: clock
-            anchors.right:         parent.right
-            anchors.rightMargin:   10
+            anchors.right:          parent.right
+            anchors.rightMargin:    10
             anchors.verticalCenter: parent.verticalCenter
-            font.family:  root.cf
+            font.family:   root.cf
             font.pixelSize: 12
-            color:        "#222222"
+            color:         "#222222"
 
             function pad(n) { return n < 10 ? "0" + n : n }
             function updateTime() {
@@ -174,30 +164,32 @@ Rectangle {
                 height: 22
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0;  color: "#a8a8a8" }
-                    GradientStop { position: 0.45; color: "#989898" }
-                    GradientStop { position: 0.55; color: "#909090" }
-                    GradientStop { position: 1.0;  color: "#808080" }
+                    GradientStop { position: 0.0;  color: "#b8b8b8" }
+                    GradientStop { position: 0.45; color: "#a0a0a0" }
+                    GradientStop { position: 0.55; color: "#989898" }
+                    GradientStop { position: 1.0;  color: "#888888" }
                 }
 
                 // Top shine
-                Rectangle { width: parent.width; height: 1; color: "rgba(255,255,255,0.45)"; anchors.top: parent.top }
+                Rectangle { width: parent.width; height: 1; color: "rgba(255,255,255,0.5)"; anchors.top: parent.top }
                 // Bottom separator
                 Rectangle { width: parent.width; height: 1; color: "#555555"; anchors.bottom: parent.bottom }
 
-                // Horizontal stripes (Mac OS 9 title bar decoration)
+                // Mac OS 9 horizontal scan-line stripes in title bar
                 Canvas {
                     anchors.left:        parent.left
                     anchors.leftMargin:  44
                     anchors.right:       parent.right
                     anchors.rightMargin: 44
                     anchors.top: parent.top; anchors.bottom: parent.bottom
-                    opacity: 0.5
+                    opacity: 0.6
                     onPaint: {
                         var ctx = getContext("2d")
-                        for (var x = 0; x < width; x += 5) {
+                        for (var y = 0; y < height; y += 2) {
+                            ctx.fillStyle = "rgba(255,255,255,0.22)"
+                            ctx.fillRect(0, y, width, 1)
                             ctx.fillStyle = "rgba(0,0,0,0.10)"
-                            ctx.fillRect(x, 0, 1, height)
+                            ctx.fillRect(0, y + 1, width, 1)
                         }
                     }
                 }
@@ -259,13 +251,13 @@ Rectangle {
                                 onPaint: {
                                     var ctx = getContext("2d")
                                     ctx.fillStyle = "#888888"
-                                    // Head
+                                    // Head (circle)
                                     ctx.beginPath()
-                                    ctx.arc(width/2, height*0.34, height*0.22, 0, Math.PI*2)
+                                    ctx.arc(width/2, height * 0.32, height * 0.22, 0, Math.PI * 2)
                                     ctx.fill()
-                                    // Body
+                                    // Body (ellipse: x, y, w, h — top-left origin in Qt Canvas)
                                     ctx.beginPath()
-                                    ctx.ellipse(width*0.15, height*0.64, width*0.70, height*0.50)
+                                    ctx.ellipse(width * 0.12, height * 0.60, width * 0.76, height * 0.46)
                                     ctx.fill()
                                 }
                             }
@@ -363,11 +355,14 @@ Rectangle {
                         }
                         // Cycle through sessions on click
                         Rectangle {
+                            id: sessionBox
                             width:  parent.width - 60
                             height: 18
                             border.color: "#888888"
                             border.width: 1
                             color: "#ffffff"
+                            property int idx: sessionModel.lastIndex >= 0
+                                              ? sessionModel.lastIndex : 0
                             Text {
                                 anchors.fill:    parent
                                 anchors.margins: 3
@@ -379,9 +374,6 @@ Rectangle {
                                 color:           "#000000"
                                 verticalAlignment: Text.AlignVCenter
                             }
-                            property int idx: sessionModel.lastIndex >= 0
-                                              ? sessionModel.lastIndex : 0
-                            id: sessionBox
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: sessionBox.idx =
@@ -414,6 +406,30 @@ Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    // ── Power controls (bottom-right, Mac OS 9 "Special" menu actions) ─────
+    Row {
+        anchors.bottom:       parent.bottom
+        anchors.right:        parent.right
+        anchors.bottomMargin: 20
+        anchors.rightMargin:  20
+        spacing: 8
+        z: 10
+
+        MacButton {
+            text:       "Restart\u2026"
+            fontFamily: root.cf
+            visible:    sddm.canReboot
+            onClicked:  sddm.reboot()
+        }
+
+        MacButton {
+            text:       "Shut Down\u2026"
+            fontFamily: root.cf
+            visible:    sddm.canPowerOff
+            onClicked:  sddm.powerOff()
         }
     }
 
