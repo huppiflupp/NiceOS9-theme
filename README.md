@@ -1,4 +1,4 @@
-# NiceOS9 KDE Plasma Theme
+# NiceOS9 KDE Plasma Theme — v2.0
 
 Two KDE Plasma look-and-feel themes inspired by classic Mac OS 9 aesthetics.
 
@@ -18,6 +18,10 @@ Both themes use:
 
 ```
 look-and-feel/     — NiceOS9 dark + NiceOS9 bright global theme packages
+  contents/
+    lockscreen/    — Mac OS 9 Finder Greeter for kscreenlocker (plasmalogin)
+    wallpaper/     — Indigo-Foam.jpg / Sage-Foam.jpg
+    layouts/       — desktop layout JS
 color-schemes/     — NiceOS9Dark.colors, ChicagoNineLight.colors
 aurorae/           — ChicagoNine (bright) + ChicagoNineDark (dark) window decorations
 icons/             — nineicons-redux-v0.6 icon theme
@@ -25,7 +29,7 @@ cursors/           — XCursor-Pro-Red cursor theme (used by bright)
 fonts/             — ChicagoFLF.ttf (public domain)
 plymouth/          — niceos9-plymouth boot screen (Happy Mac, Plymouth Script plugin)
 grub/              — niceos9-grub boot menu (Mac OS 9 Platinum desktop background)
-sddm/              — niceos9-sddm login screen (Finder Greeter, SDDM/QML)
+sddm/              — niceos9-sddm login screen (Finder Greeter, for systems using SDDM)
 previews/          — HTML design mockups for boot + login screen variants
 ```
 
@@ -75,13 +79,98 @@ After copying fonts run: `fc-cache -f ~/.local/share/fonts/`
 Then open **System Settings → Colors & Themes → Global Theme** and select
 **NiceOS9 dark** or **NiceOS9 bright**.
 
-> **Note:** The installer sets up wallpaper paths automatically.
-> If you install manually, apply the theme once via System Settings to
-> trigger the wallpaper setup.
+> **Note:** The installer sets up wallpaper paths and kscreenlocker config automatically.
+> If you install manually, run the `kwriteconfig6` commands in `install.sh` (search for
+> `kscreenlockerrc`) to configure the lock screen background.
+
+---
+
+## Lock screen (plasmalogin / kscreenlocker)
+
+On Nobara and most modern KDE setups, `plasmalogin` is the display manager. When you
+lock your session, `plasmalogin` hands off to **kscreenlocker**, which loads the lock
+screen UI from the active look-and-feel's `contents/lockscreen/` directory.
+
+The NiceOS9 lock screen renders the same **Mac OS 9 Finder Greeter** as the SDDM theme:
+- Mac OS 9 menu bar at the top with live clock
+- Platinum-chrome login window with user avatar, password field and Unlock button
+- NiceOS9 wallpaper as background (Indigo-Foam / Sage-Foam depending on variant)
+
+**Test without locking your session:**
+
+```bash
+/usr/libexec/kscreenlocker_greet --testing
+```
+
+Press any key or move the mouse to show the password prompt. Press Escape to dismiss.
+
+### How the background works
+
+kscreenlocker renders a wallpaper layer (from `~/.config/kscreenlockerrc`) below the
+QML. `install.sh` updates that key to the NiceOS9 wallpaper so there is no flash of
+a foreign background on slow hardware. The QML itself also renders the wallpaper
+directly as an `Image` item — no dependency on the `wallpaper` context property, which
+was how Nobara's background was bleeding through before.
+
+**Do not** replace the `Image` with `WallpaperFader { source: wallpaper }`. The
+`wallpaper` context property reads from `kscreenlockerrc` (defaults to Nobara's image).
+`WallpaperFader { source: someItem }` also silently fails if the item source hasn't
+rendered to a layer yet, leaving the compositor background visible.
+
+### Key files to edit if you want to change the lock screen
+
+| File | What it controls |
+|---|---|
+| `look-and-feel/NiceOS9 dark/contents/lockscreen/LockScreenUi.qml` | Background image, menu bar, lifecycle, opacity animations |
+| `look-and-feel/NiceOS9 dark/contents/lockscreen/MainBlock.qml` | Platinum login window, avatar, password field, Unlock button |
+| `look-and-feel/NiceOS9 dark/contents/lockscreen/MacButton.qml` | Shared Mac OS 9 button component |
+| `look-and-feel/NiceOS9 dark/contents/lockscreen/LockScreen.qml` | Root container — exposes kscreenlocker's required API (do not change without reading kscreenlocker docs) |
+
+After editing, redeploy with:
+
+```bash
+cp -r "look-and-feel/NiceOS9 dark" ~/.local/share/plasma/look-and-feel/
+cp fonts/ChicagoFLF.ttf ~/.local/share/plasma/look-and-feel/NiceOS9\ dark/contents/lockscreen/
+```
+
+---
+
+## Login screen (SDDM)
+
+> **Note:** On Nobara and other systems using `plasmalogin`, the initial login
+> screen (before your session starts) uses a **binary-compiled greeter** —
+> `plasma-login-greeter`. Its UI is embedded in the executable and cannot be
+> themed via QML. Only its background wallpaper is configurable (via
+> `/etc/plasmalogin.conf` or System Settings → Security → Screen Locking).
+>
+> The SDDM theme below applies to systems that actually use SDDM as their
+> display manager.
+
+The `sddm/niceos9-sddm/` theme renders a Mac OS 9 "Finder Greeter": platinum menu bar
+with live clock, blue Finder desktop, and a Mac OS 9-style login dialog with beveled
+title bar, user avatar, and styled buttons.
+
+**Install requires root** (SDDM themes are system-wide):
+
+```bash
+sudo cp -r sddm/niceos9-sddm /usr/share/sddm/themes/
+```
+
+**Activate** — either via System Settings → Colors & Themes → Login Screen (SDDM), or
+directly:
+
+```bash
+sudo mkdir -p /etc/sddm.conf.d
+echo -e "[Theme]\nCurrent=niceos9-sddm" | sudo tee /etc/sddm.conf.d/niceos9.conf
+```
+
+---
 
 ## Boot screen (Plymouth)
 
-The `plymouth/niceos9-plymouth/` theme shows a classic compact Mac face ("Happy Mac") on a platinum gray background with an animated candy-stripe progress bar, rendered in ChicagoFLF.
+The `plymouth/niceos9-plymouth/` theme shows a classic compact Mac face ("Happy Mac")
+on a platinum gray background with an animated candy-stripe progress bar, rendered in
+ChicagoFLF.
 
 **Install requires root** (Plymouth themes are system-wide):
 
@@ -99,11 +188,13 @@ sudo plymouth-set-default-theme niceos9-plymouth
 sudo dracut -f
 ```
 
-The `generate-assets.py` script uses the bundled ChicagoFLF font to bake text into PNGs so no font is needed inside the initramfs.
+The `generate-assets.py` script uses the bundled ChicagoFLF font to bake text into
+PNGs so no font is needed inside the initramfs.
 
 ### Applying changes after editing the theme
 
-Plymouth is embedded into the initramfs, so editing source files has no effect until you reinstall and rebuild it. After any change to files in `plymouth/niceos9-plymouth/`:
+Plymouth is embedded into the initramfs, so editing source files has no effect until
+you reinstall and rebuild it. After any change to files in `plymouth/niceos9-plymouth/`:
 
 ```bash
 python3 plymouth/niceos9-plymouth/generate-assets.py
@@ -114,11 +205,17 @@ sudo cp plymouth/niceos9-plymouth/*.png \
 sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f
 ```
 
-`dracut -f` rebuilds the initramfs and takes 30–60 seconds. The updated animation appears on the next reboot.
+`dracut -f` rebuilds the initramfs and takes 30–60 seconds. The updated animation
+appears on the next reboot.
+
+---
 
 ## GRUB boot menu
 
-The `grub/niceos9-grub/` theme shows a 1920×1080 platinum Mac OS 9 desktop as the GRUB background: a menu bar at the top, a large Happy Mac centred on screen, the "NiceOS 9" title, and a "Select a startup volume:" prompt — with the boot entry list appearing below as a Mac OS 9-style dialog window.
+The `grub/niceos9-grub/` theme shows a 1920×1080 platinum Mac OS 9 desktop as the
+GRUB background: a menu bar at the top, a large Happy Mac centred on screen, the
+"NiceOS 9" title, and a "Select a startup volume:" prompt — with the boot entry list
+appearing below as a Mac OS 9-style dialog window.
 
 **Install requires root** (GRUB themes are system-wide):
 
@@ -154,58 +251,8 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
 ### Applying changes after editing the theme
 
-GRUB themes are read at boot time from disk, so there is **no initramfs rebuild** needed — but you must re-run `grub2-mkconfig` whenever you change `theme.txt`, and re-copy the PNGs (and re-run `generate-assets.py`) whenever you change the artwork:
-
 ```bash
 python3 grub/niceos9-grub/generate-assets.py
 sudo cp grub/niceos9-grub/*.png /boot/grub2/themes/niceos9-grub/
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
-
-## Login screen (SDDM)
-
-The `sddm/niceos9-sddm/` theme renders a Mac OS 9 "Finder Greeter": platinum menu bar with live clock, blue Finder desktop, and a Mac OS 9-style login dialog with beveled title bar, user avatar, and styled buttons.
-
-**Install requires root** (SDDM themes are system-wide):
-
-```bash
-sudo cp -r sddm/niceos9-sddm /usr/share/sddm/themes/
-```
-
-**Activate** — either via System Settings → Colors & Themes → Login Screen (SDDM), or directly:
-
-```bash
-sudo mkdir -p /etc/sddm.conf.d
-echo -e "[Theme]\nCurrent=niceos9-sddm" | sudo tee /etc/sddm.conf.d/niceos9.conf
-```
-
-### Nobara / plasmalogin note
-
-Nobara Linux (and some other KDE setups) ship **plasmalogin** instead of SDDM as the default display manager. Plasmalogin uses the same SDDM theme format and reads themes from the same `/usr/share/sddm/themes/` directory, but it reads its own config file — **not** `/etc/sddm.conf`.
-
-This means the KDE System Settings "Login Screen (SDDM)" panel will appear to select NiceOS9 correctly, but the change will have no effect at the actual login screen because plasmalogin ignores `/etc/sddm.conf`.
-
-**Check which display manager you are running:**
-
-```bash
-systemctl status display-manager
-```
-
-If the output shows `plasmalogin.service`, edit `/etc/plasmalogin.conf` instead:
-
-```bash
-sudo nano /etc/plasmalogin.conf
-```
-
-Set the `[Theme]` section to:
-
-```ini
-[Theme]
-Current=niceos9-sddm
-```
-
-Save and reboot. The NiceOS9 login screen will now appear.
-
-### Hardcoded Breeze limitation
-
-Some distributions ship a version of plasmalogin that is **hardcoded to the Breeze theme** and does not read any theme configuration at all. On such systems the NiceOS9 SDDM theme cannot be activated — the login screen will always show Breeze regardless of what is set in `/etc/plasmalogin.conf` or System Settings. No workaround exists short of replacing the display manager entirely.
