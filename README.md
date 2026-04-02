@@ -1,4 +1,4 @@
-# NiceOS9 KDE Plasma Theme — v5.0.0
+# NiceOS9 KDE Plasma Theme — v5.1.0
 
 Two KDE Plasma look-and-feel themes inspired by classic Mac OS 9 aesthetics.
 
@@ -20,7 +20,7 @@ Both themes use:
 look-and-feel/     — NiceOS9 dark + NiceOS9 bright global theme packages
   contents/
     lockscreen/    — Mac OS 9 Finder Greeter for kscreenlocker (plasmalogin)
-    wallpaper/     — Indigo-Foam.jpg / Sage-Foam.jpg
+wallpapers/        — shared wallpaper assets, generated variants, and wallpaper roadmap
     layouts/       — desktop layout JS
 desktoptheme/      — niceos9-dark + niceos9-bright Plasma desktop themes (panel/taskbar assets + colors)
 plasma/            — legacy shell theme sources kept for compatibility
@@ -71,6 +71,7 @@ corresponding location in your home directory:
 | `look-and-feel/NiceOS9 bright` | `~/.local/share/plasma/look-and-feel/` |
 | `desktoptheme/niceos9-dark` | `~/.local/share/plasma/desktoptheme/` |
 | `desktoptheme/niceos9-bright` | `~/.local/share/plasma/desktoptheme/` |
+| `wallpapers/NiceOS9` | `~/.local/share/wallpapers/` |
 | `color-schemes/*.colors` | `~/.local/share/color-schemes/` |
 | `aurorae/ChicagoNine` | `~/.local/share/aurorae/themes/` |
 | `aurorae/ChicagoNineDark` | `~/.local/share/aurorae/themes/` |
@@ -133,7 +134,8 @@ screen UI from the active look-and-feel's `contents/lockscreen/` directory.
 The NiceOS9 lock screen renders the same **Mac OS 9 Finder Greeter** as the SDDM theme:
 - Mac OS 9 menu bar at the top with live clock
 - Platinum-chrome login window with user avatar, password field and Unlock button
-- NiceOS9 wallpaper as background (Indigo-Foam / Sage-Foam depending on variant)
+- NiceOS9 wallpaper as background from the shared `~/.local/share/wallpapers/NiceOS9/` install
+- Current defaults: `Flowing_Indigo_Wave.png` for dark and `Flowing_Platinum_Wave.png` for bright
 
 **Test without locking your session:**
 

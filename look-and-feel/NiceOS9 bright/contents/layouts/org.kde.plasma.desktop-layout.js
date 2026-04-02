@@ -5,7 +5,7 @@ var allDesktops = desktops();
 for (var i = 0; i < allDesktops.length; i++) {
     allDesktops[i].wallpaperPlugin = "org.kde.image";
     allDesktops[i].currentConfigGroup = ["Wallpaper", "org.kde.image", "General"];
-    allDesktops[i].writeConfig("Image", "file://HOME_PLACEHOLDER/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/wallpaper/Sage-Foam.jpg");
+    allDesktops[i].writeConfig("Image", "file://HOME_PLACEHOLDER/.local/share/wallpapers/NiceOS9/bright/Flowing_Platinum_Wave.png");
     allDesktops[i].reloadConfig();
 }
 

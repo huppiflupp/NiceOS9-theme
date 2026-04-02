@@ -16,6 +16,7 @@ rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark"
 rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright"
 rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-bright"
 rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-dark"
+rm -rf "$HOME/.local/share/wallpapers/NiceOS9"
 rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNine"
 rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNineDark"
 rm -rf "$HOME/.local/share/icons/nineicons-redux-v0.6"
@@ -30,7 +31,9 @@ cp -r "$SCRIPT_DIR/look-and-feel/NiceOS9 bright" "$HOME/.local/share/plasma/look
 # Inject actual home path into layout.js wallpaper paths
 sed -i "s|HOME_PLACEHOLDER|$HOME|g" \
     "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/layouts/org.kde.plasma.desktop-layout.js"
+    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/layouts/org.kde.plasma.desktop-layout.js" \
+    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/lockscreen/LockScreenUi.qml" \
+    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/lockscreen/LockScreenUi.qml"
 
 # Set the initial panel height for newly applied layouts.
 # This only affects the default layout; panel resizing in Plasma remains editable.
@@ -46,7 +49,13 @@ cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
 
 # Point kscreenlocker's compositor wallpaper layer at the NiceOS9 wallpaper
 # so that even before our QML Image renders there is no Nobara flash.
-_KSL_WALL="file://$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/wallpaper/Indigo-Foam.jpg"
+echo "[2/8] Installing shared wallpapers and Flowing variants..."
+mkdir -p "$HOME/.local/share/wallpapers"
+cp -r "$SCRIPT_DIR/wallpapers/NiceOS9" "$HOME/.local/share/wallpapers/"
+
+# Point kscreenlocker's compositor wallpaper layer at the NiceOS9 wallpaper
+# so that even before our QML Image renders there is no Nobara flash.
+_KSL_WALL="file://$HOME/.local/share/wallpapers/NiceOS9/dark/Flowing_Indigo_Wave.png"
 kwriteconfig6 --file kscreenlockerrc \
     --group "Greeter" --group "Wallpaper" --group "org.kde.image" --group "General" \
     --key "Image" "$_KSL_WALL"
@@ -56,40 +65,40 @@ kwriteconfig6 --file kscreenlockerrc \
 unset _KSL_WALL
 
 # Plasma desktop themes (niceos9-dark and niceos9-bright)
-echo "[2/8] Installing Plasma desktop themes..."
+echo "[3/8] Installing Plasma desktop themes..."
 mkdir -p "$HOME/.local/share/plasma/desktoptheme"
 cp -r "$SCRIPT_DIR/desktoptheme/niceos9-bright" "$HOME/.local/share/plasma/desktoptheme/"
 cp -r "$SCRIPT_DIR/desktoptheme/niceos9-dark" "$HOME/.local/share/plasma/desktoptheme/"
 
 # Color schemes
-echo "[3/8] Installing color schemes (application window palette)..."
+echo "[4/8] Installing color schemes (application window palette)..."
 mkdir -p "$HOME/.local/share/color-schemes"
 cp "$SCRIPT_DIR/color-schemes/"*.colors "$HOME/.local/share/color-schemes/"
 
 # Aurorae window decoration (used by NiceOS9 bright)
-echo "[4/8] Installing ChicagoNine window decorations..."
+echo "[5/8] Installing ChicagoNine window decorations..."
 mkdir -p "$HOME/.local/share/aurorae/themes"
 cp -r "$SCRIPT_DIR/aurorae/ChicagoNine" "$HOME/.local/share/aurorae/themes/"
 cp -r "$SCRIPT_DIR/aurorae/ChicagoNineDark" "$HOME/.local/share/aurorae/themes/"
 
 # Icon theme
-echo "[5/8] Installing nineicons-redux icon theme..."
+echo "[6/8] Installing nineicons-redux icon theme..."
 mkdir -p "$HOME/.local/share/icons"
 cp -r "$SCRIPT_DIR/icons/nineicons-redux-v0.6" "$HOME/.local/share/icons/"
 
 # Cursor theme (XCursor-Pro-Red, used by NiceOS9 bright)
-echo "[6/8] Installing XCursor-Pro-Red cursor theme..."
+echo "[7/8] Installing XCursor-Pro-Red cursor theme..."
 mkdir -p "$HOME/.icons"
 cp -r "$SCRIPT_DIR/cursors/XCursor-Pro-Red" "$HOME/.icons/"
 
 # Font
-echo "[7/8] Installing ChicagoFLF font (public domain by Robin Casady)..."
+echo "[8/8] Installing ChicagoFLF font (public domain by Robin Casady)..."
 mkdir -p "$HOME/.local/share/fonts"
 cp "$SCRIPT_DIR/fonts/"*.ttf "$HOME/.local/share/fonts/"
 fc-cache -f "$HOME/.local/share/fonts/"
 
 # Autostart: keep panel non-floating (Plasma 6 resets this on each restart)
-echo "[8/8] Installing panel non-floating autostart fix..."
+echo "[9/9] Installing panel non-floating autostart fix..."
 mkdir -p "$HOME/.local/bin" "$HOME/.config/autostart"
 cp "$SCRIPT_DIR/autostart/panel-nofloat.sh" "$HOME/.local/bin/"
 chmod +x "$HOME/.local/bin/panel-nofloat.sh"

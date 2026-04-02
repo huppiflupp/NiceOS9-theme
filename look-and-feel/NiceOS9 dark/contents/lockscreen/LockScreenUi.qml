@@ -149,11 +149,11 @@ Item {
         Component.onCompleted: launchAnimation.start()
 
         // ── Background wallpaper ────────────────────────────────────────────
-        // Loaded directly from the look-and-feel bundle — no dependency on
-        // kscreenlockerrc so Nobara's configured wallpaper cannot bleed through.
+        // Loaded directly from the shared wallpaper install location.
+        // This keeps the lock screen independent from the user's configured desktop wallpaper.
         Image {
             anchors.fill: parent
-            source: Qt.resolvedUrl("../wallpaper/Indigo-Foam.jpg")
+            source: "file://HOME_PLACEHOLDER/.local/share/wallpapers/NiceOS9/dark/Flowing_Indigo_Wave.png"
             fillMode: Image.PreserveAspectCrop
         }
 
