@@ -21,6 +21,23 @@ sed -i "s|HOME_PLACEHOLDER|$HOME|g" \
     "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
     "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/layouts/org.kde.plasma.desktop-layout.js"
 
+# Copy font into lockscreen directories so kscreenlocker can load it by file
+cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
+    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/lockscreen/"
+cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
+    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/lockscreen/"
+
+# Point kscreenlocker's compositor wallpaper layer at the NiceOS9 wallpaper
+# so that even before our QML Image renders there is no Nobara flash.
+_KSL_WALL="file://$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/wallpaper/Indigo-Foam.jpg"
+kwriteconfig6 --file kscreenlockerrc \
+    --group "Greeter" --group "Wallpaper" --group "org.kde.image" --group "General" \
+    --key "Image" "$_KSL_WALL"
+kwriteconfig6 --file kscreenlockerrc \
+    --group "Greeter" --group "Wallpaper" --group "org.kde.image" --group "General" \
+    --key "PreviewImage" "$_KSL_WALL"
+unset _KSL_WALL
+
 # Color schemes
 echo "[2/7] Installing color schemes..."
 mkdir -p "$HOME/.local/share/color-schemes"
