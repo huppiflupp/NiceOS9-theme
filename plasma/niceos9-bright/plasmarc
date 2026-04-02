@@ -1,0 +1,14 @@
+[Wallpaper]
+defaultWallpaperTheme=Next
+defaultFileSuffix=.png
+defaultWidth=1920
+defaultHeight=1080
+
+[ContrastEffect]
+enabled=true
+contrast=0.85
+saturation=1.0
+
+# Disable adaptive transparency so the panel stays solid Platinum gray
+[AdaptiveTransparency]
+enabled=false
