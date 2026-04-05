@@ -83,26 +83,33 @@ if $do_kde; then
     rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright"
     rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-dark"
     rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-bright"
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-charcoal"
     rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-bright"
     rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-dark"
+    rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-charcoal"
     rm -rf "$HOME/.local/share/wallpapers/NiceOS9"
     rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNine"
     rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNineDark"
+    rm -rf "$HOME/.local/share/aurorae/themes/ChicagoEight"
 
     echo "[KDE] Installing look-and-feel packages..."
     mkdir -p "$HOME/.local/share/plasma/look-and-feel"
-    cp -r "$SCRIPT_DIR/look-and-feel/niceos9-dark"   "$HOME/.local/share/plasma/look-and-feel/"
-    cp -r "$SCRIPT_DIR/look-and-feel/niceos9-bright" "$HOME/.local/share/plasma/look-and-feel/"
+    cp -r "$SCRIPT_DIR/look-and-feel/niceos9-dark"     "$HOME/.local/share/plasma/look-and-feel/"
+    cp -r "$SCRIPT_DIR/look-and-feel/niceos9-bright"   "$HOME/.local/share/plasma/look-and-feel/"
+    cp -r "$SCRIPT_DIR/look-and-feel/niceos9-charcoal" "$HOME/.local/share/plasma/look-and-feel/"
 
     sed -i "s|HOME_PLACEHOLDER|$HOME|g" \
         "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
         "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-charcoal/contents/layouts/org.kde.plasma.desktop-layout.js" \
         "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/LockScreenUi.qml" \
-        "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/LockScreenUi.qml"
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/LockScreenUi.qml" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-charcoal/contents/lockscreen/LockScreenUi.qml"
 
     sed -i "s|PANEL_HEIGHT_PLACEHOLDER|$PANEL_HEIGHT|g" \
         "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
-        "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js"
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-charcoal/contents/layouts/org.kde.plasma.desktop-layout.js"
 
     echo "[KDE] Installing wallpapers..."
     mkdir -p "$HOME/.local/share/wallpapers"
@@ -119,17 +126,19 @@ if $do_kde; then
 
     echo "[KDE] Installing desktop themes..."
     mkdir -p "$HOME/.local/share/plasma/desktoptheme"
-    cp -r "$SCRIPT_DIR/desktoptheme/niceos9-bright" "$HOME/.local/share/plasma/desktoptheme/"
-    cp -r "$SCRIPT_DIR/desktoptheme/niceos9-dark"   "$HOME/.local/share/plasma/desktoptheme/"
+    cp -r "$SCRIPT_DIR/desktoptheme/niceos9-bright"   "$HOME/.local/share/plasma/desktoptheme/"
+    cp -r "$SCRIPT_DIR/desktoptheme/niceos9-dark"     "$HOME/.local/share/plasma/desktoptheme/"
+    cp -r "$SCRIPT_DIR/desktoptheme/niceos9-charcoal" "$HOME/.local/share/plasma/desktoptheme/"
 
     echo "[KDE] Installing color schemes..."
     mkdir -p "$HOME/.local/share/color-schemes"
     cp "$SCRIPT_DIR/color-schemes/"*.colors "$HOME/.local/share/color-schemes/"
 
-    echo "[KDE] Installing ChicagoNine window decorations..."
+    echo "[KDE] Installing window decorations..."
     mkdir -p "$HOME/.local/share/aurorae/themes"
     cp -r "$SCRIPT_DIR/aurorae/ChicagoNine"     "$HOME/.local/share/aurorae/themes/"
     cp -r "$SCRIPT_DIR/aurorae/ChicagoNineDark" "$HOME/.local/share/aurorae/themes/"
+    cp -r "$SCRIPT_DIR/aurorae/ChicagoEight"    "$HOME/.local/share/aurorae/themes/"
 
     echo "[KDE] Installing ChicagoFLF font..."
     mkdir -p "$HOME/.local/share/fonts"
@@ -138,6 +147,8 @@ if $do_kde; then
         "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/"
     cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
         "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/"
+    cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-charcoal/contents/lockscreen/"
     fc-cache -f "$HOME/.local/share/fonts/"
 
     echo "[KDE] Installing panel autostart fix..."
