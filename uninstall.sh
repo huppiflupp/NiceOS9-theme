@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 # NiceOS9 KDE Plasma Theme Uninstaller
-# Removes user-local assets and the optional system-wide themes installed by this project.
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OS_ID=""
-OS_LIKE=""
-
+OS_ID="" OS_LIKE=""
 if [ -r /etc/os-release ]; then
     # shellcheck disable=SC1091
     . /etc/os-release
@@ -16,72 +12,128 @@ if [ -r /etc/os-release ]; then
 fi
 
 is_debian_family=false
+is_fedora_family=false
 case " $OS_ID $OS_LIKE " in
-    *" ubuntu "*|*" debian "*|*" neon "*)
-        is_debian_family=true
-        ;;
+    *" ubuntu "*|*" debian "*|*" neon "*) is_debian_family=true ;;
+esac
+case " $OS_ID $OS_LIKE " in
+    *" fedora "*|*" nobara "*|*" rhel "*) is_fedora_family=true ;;
 esac
 
 if [ "$is_debian_family" = true ]; then
-    GRUB_THEME_DIR="/boot/grub/themes/niceos9-grub"
+    GRUB_DEST="/boot/grub/themes/niceos9-grub"
 else
-    GRUB_THEME_DIR="/boot/grub2/themes/niceos9-grub"
+    GRUB_DEST="/boot/grub2/themes/niceos9-grub"
 fi
 
+# ── Helpers ───────────────────────────────────────────────────────────────────
+ask() {
+    local answer
+    while true; do
+        printf '%s [y/N]: ' "$1"
+        read -r answer
+        case "${answer,,}" in
+            y|yes) return 0 ;;
+            n|no|'') return 1 ;;
+        esac
+    done
+}
+
+# ── Banner ────────────────────────────────────────────────────────────────────
 echo "=== NiceOS9 KDE Theme Uninstaller ==="
 echo ""
-echo "Removing user-local NiceOS9 files..."
+echo "Select components to remove:"
+echo ""
 
-rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark"
-rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright"
-rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-dark"
-rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-bright"
-rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-bright"
-rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-dark"
-rm -rf "$HOME/.local/share/wallpapers/NiceOS9"
-rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNine"
-rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNineDark"
-rm -rf "$HOME/.local/share/icons/nineicons-redux-v0.6"
-rm -rf "$HOME/.icons/XCursor-Pro-Red"
-rm -f "$HOME/.local/share/color-schemes/NiceOS9Dark.colors"
-rm -f "$HOME/.local/share/color-schemes/ChicagoNineLight.colors"
-rm -f "$HOME/.local/share/fonts/ChicagoFLF.ttf"
-rm -f "$HOME/.local/bin/panel-nofloat.sh"
-rm -f "$HOME/.config/autostart/panel-nofloat.desktop"
+# ── Component selection ───────────────────────────────────────────────────────
+do_kde=false
+do_icons=false
+do_sddm=false
+do_plymouth=false
+do_grub=false
 
-echo "Refreshing font cache..."
-fc-cache -f "$HOME/.local/share/fonts/" >/dev/null 2>&1 || true
+ask "  KDE theme  (look-and-feel, desktop themes, colors, decorations, fonts, wallpapers)" \
+    && do_kde=true || true
+ask "  Icons  (nineicons-redux)" \
+    && do_icons=true || true
+ask "  SDDM login screen  (requires sudo)" \
+    && do_sddm=true || true
+ask "  Plymouth boot splash  (requires sudo)" \
+    && do_plymouth=true || true
+ask "  GRUB boot menu  (requires sudo)" \
+    && do_grub=true || true
 
 echo ""
-echo "Removing optional system-wide NiceOS9 themes..."
 
-if [ -d "$SCRIPT_DIR/sddm/niceos9-sddm" ] || [ -d /usr/share/sddm/themes/niceos9-sddm ]; then
+if ! $do_kde && ! $do_icons && ! $do_sddm && ! $do_plymouth && ! $do_grub; then
+    echo "Nothing selected. Exiting."
+    exit 0
+fi
+
+# ── KDE theme ─────────────────────────────────────────────────────────────────
+if $do_kde; then
+    echo "[KDE] Removing theme files..."
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark"
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright"
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-dark"
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-bright"
+    rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-bright"
+    rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-dark"
+    rm -rf "$HOME/.local/share/wallpapers/NiceOS9"
+    rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNine"
+    rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNineDark"
+    rm -f  "$HOME/.local/share/color-schemes/NiceOS9Dark.colors"
+    rm -f  "$HOME/.local/share/color-schemes/ChicagoNineLight.colors"
+    rm -f  "$HOME/.local/share/color-schemes/BesotHaiku.colors"
+    rm -f  "$HOME/.local/share/fonts/ChicagoFLF.ttf"
+    rm -f  "$HOME/.local/bin/panel-nofloat.sh"
+    rm -f  "$HOME/.config/autostart/panel-nofloat.desktop"
+    fc-cache -f "$HOME/.local/share/fonts/" >/dev/null 2>&1 || true
+    echo "  Done. Switch to a different Global Theme in System Settings."
+    echo ""
+fi
+
+# ── Icons ─────────────────────────────────────────────────────────────────────
+if $do_icons; then
+    echo "[Icons] Removing nineicons-redux..."
+    rm -rf "$HOME/.local/share/icons/nineicons-redux-v0.6"
+    echo "  Done."
+    echo ""
+fi
+
+# ── SDDM ──────────────────────────────────────────────────────────────────────
+if $do_sddm; then
+    echo "[SDDM] Removing login screen theme (requires sudo)..."
     sudo rm -rf /usr/share/sddm/themes/niceos9-sddm
+    echo "  Done. Switch SDDM back to another theme in System Settings or /etc/sddm.conf.d/."
+    echo ""
 fi
 
-if [ -d "$SCRIPT_DIR/plymouth/niceos9-plymouth" ] || [ -d /usr/share/plymouth/themes/niceos9-plymouth ]; then
+# ── Plymouth ──────────────────────────────────────────────────────────────────
+if $do_plymouth; then
+    echo "[Plymouth] Removing boot splash theme (requires sudo)..."
     sudo rm -rf /usr/share/plymouth/themes/niceos9-plymouth
+    echo "  Done. Restore a Plymouth theme and rebuild:"
+    echo "    sudo plymouth-set-default-theme bgrt"
+    if [ "$is_debian_family" = true ]; then
+        echo "    sudo update-initramfs -u"
+    else
+        echo "    sudo dracut -f"
+    fi
+    echo ""
 fi
 
-if [ -d "$SCRIPT_DIR/grub/niceos9-grub" ] || [ -d "$GRUB_THEME_DIR" ]; then
-    sudo rm -rf "$GRUB_THEME_DIR"
+# ── GRUB ──────────────────────────────────────────────────────────────────────
+if $do_grub; then
+    echo "[GRUB] Removing boot menu theme (requires sudo)..."
+    sudo rm -rf "$GRUB_DEST"
+    echo "  Done. Remove the GRUB_THEME line from /etc/default/grub and rebuild:"
+    if [ "$is_debian_family" = true ]; then
+        echo "    sudo update-grub"
+    else
+        echo "    sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
+    fi
+    echo ""
 fi
 
-echo ""
 echo "=== Uninstall complete ==="
-echo ""
-echo "Local theme files have been removed."
-echo "If NiceOS9 was active, switch back to a different Global Theme in System Settings."
-echo ""
-if [ "$is_debian_family" = true ]; then
-    echo "If you had enabled the boot screen, restore a different Plymouth theme and rebuild initramfs:"
-    echo "  sudo plymouth-set-default-theme bgrt && sudo update-initramfs -u"
-    echo "If you had enabled the GRUB theme, remove the GRUB_THEME line from /etc/default/grub and run:"
-    echo "  sudo update-grub"
-else
-    echo "If you had enabled the boot screen, restore a different Plymouth theme and rebuild initramfs:"
-    echo "  sudo plymouth-set-default-theme bgrt && sudo dracut -f"
-    echo "If you had enabled the GRUB theme, remove the GRUB_THEME line from /etc/default/grub and run:"
-    echo "  sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
-fi
-echo "If you had enabled the SDDM theme, switch SDDM back to another theme in System Settings or /etc/sddm.conf.d/."

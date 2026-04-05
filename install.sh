@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 # NiceOS9 KDE Plasma Theme Installer
-# Installs both NiceOS9 dark and NiceOS9 bright look-and-feel packages
-# along with all required assets.
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PANEL_HEIGHT="${NICEOS9_PANEL_HEIGHT:-32}"
-OS_ID=""
-OS_LIKE=""
 
+# ── OS detection ─────────────────────────────────────────────────────────────
+OS_ID="" OS_LIKE=""
 if [ -r /etc/os-release ]; then
     # shellcheck disable=SC1091
     . /etc/os-release
@@ -20,233 +18,185 @@ fi
 is_debian_family=false
 is_fedora_family=false
 case " $OS_ID $OS_LIKE " in
-    *" ubuntu "*|*" debian "*|*" neon "*)
-        is_debian_family=true
-        ;;
+    *" ubuntu "*|*" debian "*|*" neon "*) is_debian_family=true ;;
 esac
 case " $OS_ID $OS_LIKE " in
-    *" fedora "*|*" nobara "*|*" rhel "*)
-        is_fedora_family=true
-        ;;
+    *" fedora "*|*" nobara "*|*" rhel "*) is_fedora_family=true ;;
 esac
 
+export is_debian_family is_fedora_family SCRIPT_DIR PANEL_HEIGHT
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+ask() {
+    local answer
+    while true; do
+        printf '%s [y/N]: ' "$1"
+        read -r answer
+        case "${answer,,}" in
+            y|yes) return 0 ;;
+            n|no|'') return 1 ;;
+        esac
+    done
+}
+
+# ── Banner ────────────────────────────────────────────────────────────────────
 echo "=== NiceOS9 KDE Theme Installer ==="
 echo ""
+echo "Select components to install:"
+echo ""
 
-echo "Removing stale files from previous NiceOS9 installations..."
-rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark"
-rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright"
-rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-dark"
-rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-bright"
-rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-bright"
-rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-dark"
-rm -rf "$HOME/.local/share/wallpapers/NiceOS9"
-rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNine"
-rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNineDark"
-rm -rf "$HOME/.local/share/icons/nineicons-redux-v0.6"
-rm -rf "$HOME/.icons/XCursor-Pro-Red"
+# ── Component selection ───────────────────────────────────────────────────────
+do_kde=false
+do_icons=false
+do_sddm=false
+do_plymouth=false
+do_grub=false
 
-# Look and Feel packages
-echo "[1/8] Installing look-and-feel packages..."
-mkdir -p "$HOME/.local/share/plasma/look-and-feel"
-cp -r "$SCRIPT_DIR/look-and-feel/niceos9-dark" "$HOME/.local/share/plasma/look-and-feel/"
-cp -r "$SCRIPT_DIR/look-and-feel/niceos9-bright" "$HOME/.local/share/plasma/look-and-feel/"
-
-# Inject actual home path into layout.js wallpaper paths
-sed -i "s|HOME_PLACEHOLDER|$HOME|g" \
-    "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
-    "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js" \
-    "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/LockScreenUi.qml" \
-    "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/LockScreenUi.qml"
-
-# Set the initial panel height for newly applied layouts.
-# This only affects the default layout; panel resizing in Plasma remains editable.
-sed -i "s|PANEL_HEIGHT_PLACEHOLDER|$PANEL_HEIGHT|g" \
-    "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
-    "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js"
-
-# Copy font into lockscreen directories so kscreenlocker can load it by file
-cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
-    "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/"
-cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
-    "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/"
-
-# Point kscreenlocker's compositor wallpaper layer at the NiceOS9 wallpaper
-# so that even before our QML Image renders there is no Nobara flash.
-echo "[2/8] Installing shared wallpapers and Flowing variants..."
-mkdir -p "$HOME/.local/share/wallpapers"
-cp -r "$SCRIPT_DIR/wallpapers/NiceOS9" "$HOME/.local/share/wallpapers/"
-
-# Point kscreenlocker's compositor wallpaper layer at the NiceOS9 wallpaper
-# so that even before our QML Image renders there is no Nobara flash.
-_KSL_WALL="file://$HOME/.local/share/wallpapers/NiceOS9/dark/Flowing_Indigo_Wave.png"
-kwriteconfig6 --file kscreenlockerrc \
-    --group "Greeter" --group "Wallpaper" --group "org.kde.image" --group "General" \
-    --key "Image" "$_KSL_WALL"
-kwriteconfig6 --file kscreenlockerrc \
-    --group "Greeter" --group "Wallpaper" --group "org.kde.image" --group "General" \
-    --key "PreviewImage" "$_KSL_WALL"
-unset _KSL_WALL
-
-# Plasma desktop themes (niceos9-dark and niceos9-bright)
-echo "[3/8] Installing Plasma desktop themes..."
-mkdir -p "$HOME/.local/share/plasma/desktoptheme"
-cp -r "$SCRIPT_DIR/desktoptheme/niceos9-bright" "$HOME/.local/share/plasma/desktoptheme/"
-cp -r "$SCRIPT_DIR/desktoptheme/niceos9-dark" "$HOME/.local/share/plasma/desktoptheme/"
-
-# Color schemes
-echo "[4/8] Installing color schemes (application window palette)..."
-mkdir -p "$HOME/.local/share/color-schemes"
-cp "$SCRIPT_DIR/color-schemes/"*.colors "$HOME/.local/share/color-schemes/"
-
-# Aurorae window decoration (used by NiceOS9 bright)
-echo "[5/8] Installing ChicagoNine window decorations..."
-mkdir -p "$HOME/.local/share/aurorae/themes"
-cp -r "$SCRIPT_DIR/aurorae/ChicagoNine" "$HOME/.local/share/aurorae/themes/"
-cp -r "$SCRIPT_DIR/aurorae/ChicagoNineDark" "$HOME/.local/share/aurorae/themes/"
-
-# Icon theme
-echo "[6/8] Installing nineicons-redux icon theme..."
-mkdir -p "$HOME/.local/share/icons"
-cp -r "$SCRIPT_DIR/icons/nineicons-redux-v0.6" "$HOME/.local/share/icons/"
-
-# Cursor theme (XCursor-Pro-Red, used by NiceOS9 bright)
-echo "[7/8] Installing XCursor-Pro-Red cursor theme..."
-mkdir -p "$HOME/.icons"
-cp -r "$SCRIPT_DIR/cursors/XCursor-Pro-Red" "$HOME/.icons/"
-
-# Font
-echo "[8/8] Installing ChicagoFLF font (public domain by Robin Casady)..."
-mkdir -p "$HOME/.local/share/fonts"
-cp "$SCRIPT_DIR/fonts/"*.ttf "$HOME/.local/share/fonts/"
-fc-cache -f "$HOME/.local/share/fonts/"
-
-# Autostart: keep panel non-floating (Plasma 6 resets this on each restart)
-echo "[9/9] Installing panel non-floating autostart fix..."
-mkdir -p "$HOME/.local/bin" "$HOME/.config/autostart"
-cp "$SCRIPT_DIR/autostart/panel-nofloat.sh" "$HOME/.local/bin/"
-chmod +x "$HOME/.local/bin/panel-nofloat.sh"
-sed "s|/home/seeas|$HOME|g" "$SCRIPT_DIR/autostart/panel-nofloat.desktop" \
-    > "$HOME/.config/autostart/panel-nofloat.desktop"
+ask "  KDE theme  (look-and-feel, desktop themes, colors, decorations, fonts, wallpapers)" \
+    && do_kde=true || true
+ask "  Icons  (nineicons-redux)" \
+    && do_icons=true || true
+ask "  SDDM login screen  (requires sudo)" \
+    && do_sddm=true || true
+ask "  Plymouth boot splash  (requires sudo)" \
+    && do_plymouth=true || true
+ask "  GRUB boot menu  (requires sudo)" \
+    && do_grub=true || true
 
 echo ""
-# Plymouth boot theme (niceos9-plymouth)
-echo "[8/9] Installing NiceOS 9 Plymouth boot theme..."
-if [ -d "$SCRIPT_DIR/plymouth/niceos9-plymouth" ]; then
-    PLYMOUTH_THEME_DIR="$SCRIPT_DIR/plymouth/niceos9-plymouth"
-    # Generate PNG assets (requires Pillow)
-    echo "      Generating Plymouth assets (requires Pillow)..."
-    if python3 "$PLYMOUTH_THEME_DIR/generate-assets.py"; then
-        # Install to system themes directory (requires sudo)
-        PLYMOUTH_DEST="/usr/share/plymouth/themes/niceos9-plymouth"
-        echo "      Installing to $PLYMOUTH_DEST (requires sudo)..."
-        sudo mkdir -p "$PLYMOUTH_DEST"
-        sudo cp "$PLYMOUTH_THEME_DIR"/*.png \
-                "$PLYMOUTH_THEME_DIR/niceos9.script" \
-                "$PLYMOUTH_THEME_DIR/niceos9-plymouth.plymouth" \
-                "$PLYMOUTH_DEST/"
-        # Register the theme with Plymouth
-        sudo update-alternatives --install \
-            /usr/share/plymouth/themes/default.plymouth \
-            default.plymouth \
-            "$PLYMOUTH_DEST/niceos9.plymouth" 100 2>/dev/null || true
-        if [ "$is_debian_family" = true ]; then
-            echo "      To activate on Ubuntu/KDE neon: sudo plymouth-set-default-theme niceos9-plymouth && sudo update-initramfs -u"
-        else
-            echo "      To activate on Fedora/Nobara: sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
-        fi
-    else
-        echo "      WARNING: Asset generation failed. Install Pillow and re-run:"
-        echo "               pip install Pillow"
-        echo "      Then manually run: python3 $PLYMOUTH_THEME_DIR/generate-assets.py"
-    fi
-else
-    echo "      Plymouth theme source not found, skipping."
-fi
-
-# SDDM login theme (niceos9-sddm)
-echo "[9/9] Installing NiceOS 9 SDDM login theme..."
-if [ -d "$SCRIPT_DIR/sddm/niceos9-sddm" ]; then
-    SDDM_DEST="/usr/share/sddm/themes/niceos9-sddm"
-    echo "      Installing to $SDDM_DEST (requires sudo)..."
-    sudo mkdir -p "$SDDM_DEST"
-    sudo cp -r "$SCRIPT_DIR/sddm/niceos9-sddm"/. "$SDDM_DEST/"
-    echo "      To activate: set Theme=niceos9-sddm in /etc/sddm.conf.d/theme.conf"
-    echo "      Or via System Settings > Colors & Themes > Login Screen (SDDM)"
-else
-    echo "      SDDM theme source not found, skipping."
-fi
-
-# GRUB boot menu theme (niceos9-grub)
-echo "[9/10] Installing NiceOS 9 GRUB boot menu theme..."
-if [ -d "$SCRIPT_DIR/grub/niceos9-grub" ]; then
-    GRUB_THEME_DIR="$SCRIPT_DIR/grub/niceos9-grub"
-    echo "      Generating GRUB assets (requires Pillow)..."
-    if python3 "$GRUB_THEME_DIR/generate-assets.py"; then
-        if [ "$is_debian_family" = true ]; then
-            GRUB_DEST="/boot/grub/themes/niceos9-grub"
-        else
-            GRUB_DEST="/boot/grub2/themes/niceos9-grub"
-        fi
-        echo "      Installing to $GRUB_DEST (requires sudo)..."
-        sudo mkdir -p "$GRUB_DEST"
-        sudo cp "$GRUB_THEME_DIR"/*.png \
-                "$GRUB_THEME_DIR/theme.txt" \
-                "$GRUB_DEST/"
-        # Generate PF2 font (grub-mkfont required — usually in grub2-tools)
-        if command -v grub-mkfont &>/dev/null || command -v grub2-mkfont &>/dev/null; then
-            MKFONT=$(command -v grub2-mkfont || command -v grub-mkfont)
-            FONT_TTF="$SCRIPT_DIR/fonts/ChicagoFLF.ttf"
-            echo "      Generating GRUB fonts from ChicagoFLF..."
-            sudo "$MKFONT" -s 18 -n "ChicagoFLF 18" -o "$GRUB_DEST/ChicagoFLF-18.pf2" "$FONT_TTF"
-            sudo "$MKFONT" -s 14 -n "ChicagoFLF 14" -o "$GRUB_DEST/ChicagoFLF-14.pf2" "$FONT_TTF"
-        else
-            echo "      WARNING: grub font generator not found — fonts will fall back to GRUB default."
-            if [ "$is_debian_family" = true ]; then
-                echo "               Install with: sudo apt install grub-common"
-            else
-                echo "               Install with: sudo dnf install grub2-tools  (or grub-tools)"
-            fi
-            # Patch theme.txt to use a safe fallback font
-            sudo sed -i \
-                -e 's/item_font.*=.*/item_font = "Unknown Regular 16"/' \
-                -e 's/font.*=.*"ChicagoFLF 14"$/font = "Unknown Regular 14"/' \
-                "$GRUB_DEST/theme.txt"
-        fi
-        echo "      Then add/update GRUB_THEME in /etc/default/grub:"
-        echo "        GRUB_THEME='$GRUB_DEST/theme.txt'"
-        if [ "$is_debian_family" = true ]; then
-            echo "      Rebuild config on Ubuntu/KDE neon: sudo update-grub"
-        else
-            echo "      Rebuild config on Fedora/Nobara: sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
-        fi
-    else
-        echo "      WARNING: Asset generation failed. Install Pillow and re-run:"
-        echo "               pip install Pillow"
-    fi
-else
-    echo "      GRUB theme source not found, skipping."
-fi
-
+echo "  Cursors: XCursor-Pro-Red is no longer bundled."
+echo "           Get it from kde-look.org (search 'XCursor-Pro-Red')."
 echo ""
+
+if ! $do_kde && ! $do_icons && ! $do_sddm && ! $do_plymouth && ! $do_grub; then
+    echo "Nothing selected. Exiting."
+    exit 0
+fi
+
+echo "Installing selected components..."
+echo ""
+
+# ── KDE theme ─────────────────────────────────────────────────────────────────
+if $do_kde; then
+    echo "Removing stale KDE theme files from previous installs..."
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark"
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright"
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-dark"
+    rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-bright"
+    rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-bright"
+    rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-dark"
+    rm -rf "$HOME/.local/share/wallpapers/NiceOS9"
+    rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNine"
+    rm -rf "$HOME/.local/share/aurorae/themes/ChicagoNineDark"
+
+    echo "[KDE] Installing look-and-feel packages..."
+    mkdir -p "$HOME/.local/share/plasma/look-and-feel"
+    cp -r "$SCRIPT_DIR/look-and-feel/niceos9-dark"   "$HOME/.local/share/plasma/look-and-feel/"
+    cp -r "$SCRIPT_DIR/look-and-feel/niceos9-bright" "$HOME/.local/share/plasma/look-and-feel/"
+
+    sed -i "s|HOME_PLACEHOLDER|$HOME|g" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/LockScreenUi.qml" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/LockScreenUi.qml"
+
+    sed -i "s|PANEL_HEIGHT_PLACEHOLDER|$PANEL_HEIGHT|g" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js"
+
+    echo "[KDE] Installing wallpapers..."
+    mkdir -p "$HOME/.local/share/wallpapers"
+    cp -r "$SCRIPT_DIR/wallpapers/NiceOS9" "$HOME/.local/share/wallpapers/"
+
+    _KSL_WALL="file://$HOME/.local/share/wallpapers/NiceOS9/dark/Flowing_Indigo_Wave.png"
+    kwriteconfig6 --file kscreenlockerrc \
+        --group "Greeter" --group "Wallpaper" --group "org.kde.image" --group "General" \
+        --key "Image" "$_KSL_WALL"
+    kwriteconfig6 --file kscreenlockerrc \
+        --group "Greeter" --group "Wallpaper" --group "org.kde.image" --group "General" \
+        --key "PreviewImage" "$_KSL_WALL"
+    unset _KSL_WALL
+
+    echo "[KDE] Installing desktop themes..."
+    mkdir -p "$HOME/.local/share/plasma/desktoptheme"
+    cp -r "$SCRIPT_DIR/desktoptheme/niceos9-bright" "$HOME/.local/share/plasma/desktoptheme/"
+    cp -r "$SCRIPT_DIR/desktoptheme/niceos9-dark"   "$HOME/.local/share/plasma/desktoptheme/"
+
+    echo "[KDE] Installing color schemes..."
+    mkdir -p "$HOME/.local/share/color-schemes"
+    cp "$SCRIPT_DIR/color-schemes/"*.colors "$HOME/.local/share/color-schemes/"
+
+    echo "[KDE] Installing ChicagoNine window decorations..."
+    mkdir -p "$HOME/.local/share/aurorae/themes"
+    cp -r "$SCRIPT_DIR/aurorae/ChicagoNine"     "$HOME/.local/share/aurorae/themes/"
+    cp -r "$SCRIPT_DIR/aurorae/ChicagoNineDark" "$HOME/.local/share/aurorae/themes/"
+
+    echo "[KDE] Installing ChicagoFLF font..."
+    mkdir -p "$HOME/.local/share/fonts"
+    cp "$SCRIPT_DIR/fonts/"*.ttf "$HOME/.local/share/fonts/"
+    cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/"
+    cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
+        "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/"
+    fc-cache -f "$HOME/.local/share/fonts/"
+
+    echo "[KDE] Installing panel autostart fix..."
+    mkdir -p "$HOME/.local/bin" "$HOME/.config/autostart"
+    cp "$SCRIPT_DIR/autostart/panel-nofloat.sh" "$HOME/.local/bin/"
+    chmod +x "$HOME/.local/bin/panel-nofloat.sh"
+    sed "s|/home/seeas|$HOME|g" "$SCRIPT_DIR/autostart/panel-nofloat.desktop" \
+        > "$HOME/.config/autostart/panel-nofloat.desktop"
+
+    echo ""
+    echo "  KDE theme installed."
+    echo "  Apply via System Settings > Colors & Themes > Global Theme"
+    echo "  and select 'NiceOS9 dark' or 'NiceOS9 bright'."
+    echo "  Panel height used for new layouts: $PANEL_HEIGHT"
+    echo "  Override with: NICEOS9_PANEL_HEIGHT=40 ./install.sh"
+    echo ""
+fi
+
+# ── Icons ─────────────────────────────────────────────────────────────────────
+if $do_icons; then
+    echo "[Icons] Removing stale icon files..."
+    rm -rf "$HOME/.local/share/icons/nineicons-redux-v0.6"
+
+    echo "[Icons] Installing nineicons-redux..."
+    mkdir -p "$HOME/.local/share/icons"
+    cp -r "$SCRIPT_DIR/icons/nineicons-redux-v0.6" "$HOME/.local/share/icons/"
+    echo ""
+    echo "  Icons installed. Select 'nineicons-redux' in System Settings > Icons."
+    echo ""
+fi
+
+# ── SDDM ──────────────────────────────────────────────────────────────────────
+if $do_sddm; then
+    echo "[SDDM] Installing login screen theme..."
+    if [ -d "$SCRIPT_DIR/sddm/niceos9-sddm" ]; then
+        SDDM_DEST="/usr/share/sddm/themes/niceos9-sddm"
+        echo "       Installing to $SDDM_DEST (requires sudo)..."
+        sudo mkdir -p "$SDDM_DEST"
+        sudo cp -r "$SCRIPT_DIR/sddm/niceos9-sddm"/. "$SDDM_DEST/"
+        echo ""
+        echo "  SDDM theme installed."
+        echo "  Activate via System Settings > Colors & Themes > Login Screen (SDDM)"
+        echo "  or set Theme=niceos9-sddm in /etc/sddm.conf.d/theme.conf"
+        echo ""
+    else
+        echo "  SDDM theme source not found, skipping."
+    fi
+fi
+
+# ── Plymouth ──────────────────────────────────────────────────────────────────
+if $do_plymouth; then
+    # shellcheck source=install-plymouth.sh
+    source "$SCRIPT_DIR/install-plymouth.sh"
+fi
+
+# ── GRUB ──────────────────────────────────────────────────────────────────────
+if $do_grub; then
+    # shellcheck source=install-grub.sh
+    source "$SCRIPT_DIR/install-grub.sh"
+fi
+
 echo "=== Installation complete! ==="
-echo ""
-echo "To apply a theme, open System Settings > Colors & Themes > Global Theme"
-echo "and select 'NiceOS9 dark' or 'NiceOS9 bright'."
-echo "Initial panel height used for new layouts: $PANEL_HEIGHT"
-echo "Override it during install with: NICEOS9_PANEL_HEIGHT=40 ./install.sh"
-echo ""
-echo "Color schemes installed:"
-echo "  NiceOS9 dark  → NiceOS9Dark (bundled)"
-echo "  NiceOS9 bright → ChicagoNineLight (bundled)"
-echo ""
-if [ "$is_debian_family" = true ]; then
-    echo "Boot screen:  sudo plymouth-set-default-theme niceos9-plymouth && sudo update-initramfs -u"
-    echo "Boot menu:    add GRUB_THEME='/boot/grub/themes/niceos9-grub/theme.txt' to /etc/default/grub"
-    echo "              then: sudo update-grub"
-else
-    echo "Boot screen:  sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
-    echo "Boot menu:    add GRUB_THEME='/boot/grub2/themes/niceos9-grub/theme.txt' to /etc/default/grub"
-    echo "              then: sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
-fi
-echo "Login screen: use SDDM settings on Ubuntu/KDE neon; Fedora/Nobara may use plasmalogin instead"
