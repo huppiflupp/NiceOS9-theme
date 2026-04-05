@@ -7,6 +7,28 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PANEL_HEIGHT="${NICEOS9_PANEL_HEIGHT:-32}"
+OS_ID=""
+OS_LIKE=""
+
+if [ -r /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    OS_ID="${ID:-}"
+    OS_LIKE="${ID_LIKE:-}"
+fi
+
+is_debian_family=false
+is_fedora_family=false
+case " $OS_ID $OS_LIKE " in
+    *" ubuntu "*|*" debian "*|*" neon "*)
+        is_debian_family=true
+        ;;
+esac
+case " $OS_ID $OS_LIKE " in
+    *" fedora "*|*" nobara "*|*" rhel "*)
+        is_fedora_family=true
+        ;;
+esac
 
 echo "=== NiceOS9 KDE Theme Installer ==="
 echo ""
@@ -14,6 +36,8 @@ echo ""
 echo "Removing stale files from previous NiceOS9 installations..."
 rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark"
 rm -rf "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright"
+rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-dark"
+rm -rf "$HOME/.local/share/plasma/look-and-feel/niceos9-bright"
 rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-bright"
 rm -rf "$HOME/.local/share/plasma/desktoptheme/niceos9-dark"
 rm -rf "$HOME/.local/share/wallpapers/NiceOS9"
@@ -25,27 +49,27 @@ rm -rf "$HOME/.icons/XCursor-Pro-Red"
 # Look and Feel packages
 echo "[1/8] Installing look-and-feel packages..."
 mkdir -p "$HOME/.local/share/plasma/look-and-feel"
-cp -r "$SCRIPT_DIR/look-and-feel/NiceOS9 dark" "$HOME/.local/share/plasma/look-and-feel/"
-cp -r "$SCRIPT_DIR/look-and-feel/NiceOS9 bright" "$HOME/.local/share/plasma/look-and-feel/"
+cp -r "$SCRIPT_DIR/look-and-feel/niceos9-dark" "$HOME/.local/share/plasma/look-and-feel/"
+cp -r "$SCRIPT_DIR/look-and-feel/niceos9-bright" "$HOME/.local/share/plasma/look-and-feel/"
 
 # Inject actual home path into layout.js wallpaper paths
 sed -i "s|HOME_PLACEHOLDER|$HOME|g" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/layouts/org.kde.plasma.desktop-layout.js" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/lockscreen/LockScreenUi.qml" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/lockscreen/LockScreenUi.qml"
+    "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
+    "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js" \
+    "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/LockScreenUi.qml" \
+    "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/LockScreenUi.qml"
 
 # Set the initial panel height for newly applied layouts.
 # This only affects the default layout; panel resizing in Plasma remains editable.
 sed -i "s|PANEL_HEIGHT_PLACEHOLDER|$PANEL_HEIGHT|g" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/layouts/org.kde.plasma.desktop-layout.js"
+    "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/layouts/org.kde.plasma.desktop-layout.js" \
+    "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/layouts/org.kde.plasma.desktop-layout.js"
 
 # Copy font into lockscreen directories so kscreenlocker can load it by file
 cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 dark/contents/lockscreen/"
+    "$HOME/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/"
 cp "$SCRIPT_DIR/fonts/ChicagoFLF.ttf" \
-    "$HOME/.local/share/plasma/look-and-feel/NiceOS9 bright/contents/lockscreen/"
+    "$HOME/.local/share/plasma/look-and-feel/niceos9-bright/contents/lockscreen/"
 
 # Point kscreenlocker's compositor wallpaper layer at the NiceOS9 wallpaper
 # so that even before our QML Image renders there is no Nobara flash.
@@ -126,7 +150,11 @@ if [ -d "$SCRIPT_DIR/plymouth/niceos9-plymouth" ]; then
             /usr/share/plymouth/themes/default.plymouth \
             default.plymouth \
             "$PLYMOUTH_DEST/niceos9.plymouth" 100 2>/dev/null || true
-        echo "      To activate: sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
+        if [ "$is_debian_family" = true ]; then
+            echo "      To activate on Ubuntu/KDE neon: sudo plymouth-set-default-theme niceos9-plymouth && sudo update-initramfs -u"
+        else
+            echo "      To activate on Fedora/Nobara: sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
+        fi
     else
         echo "      WARNING: Asset generation failed. Install Pillow and re-run:"
         echo "               pip install Pillow"
@@ -155,7 +183,11 @@ if [ -d "$SCRIPT_DIR/grub/niceos9-grub" ]; then
     GRUB_THEME_DIR="$SCRIPT_DIR/grub/niceos9-grub"
     echo "      Generating GRUB assets (requires Pillow)..."
     if python3 "$GRUB_THEME_DIR/generate-assets.py"; then
-        GRUB_DEST="/boot/grub2/themes/niceos9-grub"
+        if [ "$is_debian_family" = true ]; then
+            GRUB_DEST="/boot/grub/themes/niceos9-grub"
+        else
+            GRUB_DEST="/boot/grub2/themes/niceos9-grub"
+        fi
         echo "      Installing to $GRUB_DEST (requires sudo)..."
         sudo mkdir -p "$GRUB_DEST"
         sudo cp "$GRUB_THEME_DIR"/*.png \
@@ -169,17 +201,25 @@ if [ -d "$SCRIPT_DIR/grub/niceos9-grub" ]; then
             sudo "$MKFONT" -s 18 -n "ChicagoFLF 18" -o "$GRUB_DEST/ChicagoFLF-18.pf2" "$FONT_TTF"
             sudo "$MKFONT" -s 14 -n "ChicagoFLF 14" -o "$GRUB_DEST/ChicagoFLF-14.pf2" "$FONT_TTF"
         else
-            echo "      WARNING: grub2-mkfont not found — fonts will fall back to GRUB default."
-            echo "               Install with: sudo dnf install grub2-tools  (or grub-tools)"
+            echo "      WARNING: grub font generator not found — fonts will fall back to GRUB default."
+            if [ "$is_debian_family" = true ]; then
+                echo "               Install with: sudo apt install grub-common"
+            else
+                echo "               Install with: sudo dnf install grub2-tools  (or grub-tools)"
+            fi
             # Patch theme.txt to use a safe fallback font
             sudo sed -i \
                 -e 's/item_font.*=.*/item_font = "Unknown Regular 16"/' \
                 -e 's/font.*=.*"ChicagoFLF 14"$/font = "Unknown Regular 14"/' \
                 "$GRUB_DEST/theme.txt"
         fi
-        echo "      To activate: sudo grub2-set-default 0 && sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
         echo "      Then add/update GRUB_THEME in /etc/default/grub:"
         echo "        GRUB_THEME='$GRUB_DEST/theme.txt'"
+        if [ "$is_debian_family" = true ]; then
+            echo "      Rebuild config on Ubuntu/KDE neon: sudo update-grub"
+        else
+            echo "      Rebuild config on Fedora/Nobara: sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
+        fi
     else
         echo "      WARNING: Asset generation failed. Install Pillow and re-run:"
         echo "               pip install Pillow"
@@ -200,7 +240,13 @@ echo "Color schemes installed:"
 echo "  NiceOS9 dark  → NiceOS9Dark (bundled)"
 echo "  NiceOS9 bright → ChicagoNineLight (bundled)"
 echo ""
-echo "Boot screen:  sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
-echo "Boot menu:    add GRUB_THEME='/boot/grub2/themes/niceos9-grub/theme.txt' to /etc/default/grub"
-echo "              then: sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
-echo "Login screen: set via System Settings > Login Screen (SDDM)"
+if [ "$is_debian_family" = true ]; then
+    echo "Boot screen:  sudo plymouth-set-default-theme niceos9-plymouth && sudo update-initramfs -u"
+    echo "Boot menu:    add GRUB_THEME='/boot/grub/themes/niceos9-grub/theme.txt' to /etc/default/grub"
+    echo "              then: sudo update-grub"
+else
+    echo "Boot screen:  sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f"
+    echo "Boot menu:    add GRUB_THEME='/boot/grub2/themes/niceos9-grub/theme.txt' to /etc/default/grub"
+    echo "              then: sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
+fi
+echo "Login screen: use SDDM settings on Ubuntu/KDE neon; Fedora/Nobara may use plasmalogin instead"

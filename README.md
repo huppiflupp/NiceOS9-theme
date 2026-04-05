@@ -60,6 +60,19 @@ chmod +x install.sh
 ./install.sh
 ```
 
+## Uninstall / stale-file cleanup
+
+To remove the NiceOS9 files installed by this project:
+
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
+
+This removes the local Plasma theme assets, the old stale `look-and-feel/NiceOS9 ...`
+package directories, and the optional system-wide SDDM, Plymouth, and GRUB theme
+directories if they were installed.
+
 ## Manual installation
 
 If you prefer to install components individually, copy each folder to the
@@ -67,8 +80,8 @@ corresponding location in your home directory:
 
 | Source | Destination |
 |---|---|
-| `look-and-feel/NiceOS9 dark` | `~/.local/share/plasma/look-and-feel/` |
-| `look-and-feel/NiceOS9 bright` | `~/.local/share/plasma/look-and-feel/` |
+| `look-and-feel/niceos9-dark` | `~/.local/share/plasma/look-and-feel/` |
+| `look-and-feel/niceos9-bright` | `~/.local/share/plasma/look-and-feel/` |
 | `desktoptheme/niceos9-dark` | `~/.local/share/plasma/desktoptheme/` |
 | `desktoptheme/niceos9-bright` | `~/.local/share/plasma/desktoptheme/` |
 | `wallpapers/NiceOS9` | `~/.local/share/wallpapers/` |
@@ -162,16 +175,16 @@ rendered to a layer yet, leaving the compositor background visible.
 
 | File | What it controls |
 |---|---|
-| `look-and-feel/NiceOS9 dark/contents/lockscreen/LockScreenUi.qml` | Background image, menu bar, lifecycle, opacity animations |
-| `look-and-feel/NiceOS9 dark/contents/lockscreen/MainBlock.qml` | Platinum login window, avatar, password field, Unlock button |
-| `look-and-feel/NiceOS9 dark/contents/lockscreen/MacButton.qml` | Shared Mac OS 9 button component |
-| `look-and-feel/NiceOS9 dark/contents/lockscreen/LockScreen.qml` | Root container — exposes kscreenlocker's required API (do not change without reading kscreenlocker docs) |
+| `look-and-feel/niceos9-dark/contents/lockscreen/LockScreenUi.qml` | Background image, menu bar, lifecycle, opacity animations |
+| `look-and-feel/niceos9-dark/contents/lockscreen/MainBlock.qml` | Platinum login window, avatar, password field, Unlock button |
+| `look-and-feel/niceos9-dark/contents/lockscreen/MacButton.qml` | Shared Mac OS 9 button component |
+| `look-and-feel/niceos9-dark/contents/lockscreen/LockScreen.qml` | Root container — exposes kscreenlocker's required API (do not change without reading kscreenlocker docs) |
 
 After editing, redeploy with:
 
 ```bash
-cp -r "look-and-feel/NiceOS9 dark" ~/.local/share/plasma/look-and-feel/
-cp fonts/ChicagoFLF.ttf ~/.local/share/plasma/look-and-feel/NiceOS9\ dark/contents/lockscreen/
+cp -r look-and-feel/niceos9-dark ~/.local/share/plasma/look-and-feel/
+cp fonts/ChicagoFLF.ttf ~/.local/share/plasma/look-and-feel/niceos9-dark/contents/lockscreen/
 ```
 
 ---
@@ -205,6 +218,10 @@ sudo mkdir -p /etc/sddm.conf.d
 echo -e "[Theme]\nCurrent=niceos9-sddm" | sudo tee /etc/sddm.conf.d/niceos9.conf
 ```
 
+On Ubuntu-based Plasma systems such as KDE neon, SDDM is usually still the display
+manager, so the SDDM theme above is the path that matters. On Fedora derivatives such
+as Nobara, check first whether the system is using `sddm` or `plasmalogin`.
+
 ---
 
 ## Boot screen (Plymouth)
@@ -226,6 +243,8 @@ sudo cp plymouth/niceos9-plymouth/*.png \
         plymouth/niceos9-plymouth/niceos9-plymouth.plymouth \
         /usr/share/plymouth/themes/niceos9-plymouth/
 sudo plymouth-set-default-theme niceos9-plymouth
+sudo update-initramfs -u   # Ubuntu / Debian / KDE neon
+# or:
 sudo dracut -f
 ```
 
@@ -243,11 +262,14 @@ sudo cp plymouth/niceos9-plymouth/*.png \
         plymouth/niceos9-plymouth/niceos9.script \
         plymouth/niceos9-plymouth/niceos9-plymouth.plymouth \
         /usr/share/plymouth/themes/niceos9-plymouth/
-sudo plymouth-set-default-theme niceos9-plymouth && sudo dracut -f
+sudo plymouth-set-default-theme niceos9-plymouth
+sudo update-initramfs -u   # Ubuntu / Debian / KDE neon
+# or:
+sudo dracut -f             # Fedora / Nobara
 ```
 
-`dracut -f` rebuilds the initramfs and takes 30–60 seconds. The updated animation
-appears on the next reboot.
+Rebuilding the initramfs takes 30–60 seconds. The updated animation appears on the
+next reboot.
 
 ---
 
@@ -265,12 +287,20 @@ appearing below as a Mac OS 9-style dialog window.
 python3 grub/niceos9-grub/generate-assets.py
 
 # Copy to system
-sudo mkdir -p /boot/grub2/themes/niceos9-grub
-sudo cp grub/niceos9-grub/*.png \
-        grub/niceos9-grub/theme.txt \
-        /boot/grub2/themes/niceos9-grub/
+sudo mkdir -p /boot/grub/themes/niceos9-grub     # Ubuntu / Debian / KDE neon
+# or:
+sudo mkdir -p /boot/grub2/themes/niceos9-grub    # Fedora / Nobara
+sudo cp grub/niceos9-grub/*.png grub/niceos9-grub/theme.txt /boot/grub/themes/niceos9-grub/
+# or:
+sudo cp grub/niceos9-grub/*.png grub/niceos9-grub/theme.txt /boot/grub2/themes/niceos9-grub/
 
-# Generate PF2 fonts from ChicagoFLF (grub2-tools required)
+# Generate PF2 fonts from ChicagoFLF
+# Use grub-mkfont on Ubuntu/Debian, or grub2-mkfont on Fedora if that is the installed name.
+sudo grub-mkfont -s 18 -n "ChicagoFLF 18" \
+    -o /boot/grub/themes/niceos9-grub/ChicagoFLF-18.pf2 fonts/ChicagoFLF.ttf
+sudo grub-mkfont -s 14 -n "ChicagoFLF 14" \
+    -o /boot/grub/themes/niceos9-grub/ChicagoFLF-14.pf2 fonts/ChicagoFLF.ttf
+# or on Fedora/Nobara:
 sudo grub2-mkfont -s 18 -n "ChicagoFLF 18" \
     -o /boot/grub2/themes/niceos9-grub/ChicagoFLF-18.pf2 fonts/ChicagoFLF.ttf
 sudo grub2-mkfont -s 14 -n "ChicagoFLF 14" \
@@ -280,10 +310,12 @@ sudo grub2-mkfont -s 14 -n "ChicagoFLF 14" \
 **Activate** — add the theme line to `/etc/default/grub`, then rebuild:
 
 ```bash
-# Add or update this line in /etc/default/grub:
-GRUB_THEME='/boot/grub2/themes/niceos9-grub/theme.txt'
+# Ubuntu / Debian / KDE neon:
+GRUB_THEME='/boot/grub/themes/niceos9-grub/theme.txt'
+sudo update-grub
 
-# Rebuild grub config
+# Fedora / Nobara:
+GRUB_THEME='/boot/grub2/themes/niceos9-grub/theme.txt'
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
 
@@ -294,6 +326,10 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
 ```bash
 python3 grub/niceos9-grub/generate-assets.py
+sudo cp grub/niceos9-grub/*.png /boot/grub/themes/niceos9-grub/
+sudo update-grub
+
+# or on Fedora / Nobara:
 sudo cp grub/niceos9-grub/*.png /boot/grub2/themes/niceos9-grub/
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
