@@ -171,20 +171,8 @@ fi
 
 # ── SDDM ──────────────────────────────────────────────────────────────────────
 if $do_sddm; then
-    echo "[SDDM] Installing login screen theme..."
-    if [ -d "$SCRIPT_DIR/sddm/niceos9-sddm" ]; then
-        SDDM_DEST="/usr/share/sddm/themes/niceos9-sddm"
-        echo "       Installing to $SDDM_DEST (requires sudo)..."
-        sudo mkdir -p "$SDDM_DEST"
-        sudo cp -r "$SCRIPT_DIR/sddm/niceos9-sddm"/. "$SDDM_DEST/"
-        echo ""
-        echo "  SDDM theme installed."
-        echo "  Activate via System Settings > Colors & Themes > Login Screen (SDDM)"
-        echo "  or set Theme=niceos9-sddm in /etc/sddm.conf.d/theme.conf"
-        echo ""
-    else
-        echo "  SDDM theme source not found, skipping."
-    fi
+    # shellcheck source=install-sddm.sh
+    source "$SCRIPT_DIR/install-sddm.sh"
 fi
 
 # ── Plymouth ──────────────────────────────────────────────────────────────────
