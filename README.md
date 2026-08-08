@@ -148,7 +148,7 @@ The NiceOS9 lock screen renders the same **Mac OS 9 Finder Greeter** as the SDDM
 - Mac OS 9 menu bar at the top with live clock
 - Platinum-chrome login window with user avatar, password field and Unlock button
 - NiceOS9 wallpaper as background from the shared `~/.local/share/wallpapers/NiceOS9/` install
-- Current defaults: `Flowing_Indigo_Wave.png` for dark and `Flowing_Platinum_Wave.png` for bright
+- Current defaults: `Flowing_Deepblue_Waves.png` for dark and `Flowing_Platinum_Wave.png` for bright
 
 **Test without locking your session:**
 
@@ -333,3 +333,18 @@ sudo update-grub
 sudo cp grub/niceos9-grub/*.png /boot/grub2/themes/niceos9-grub/
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
+
+## License
+
+The theme itself is licensed under **GPL-2.0-or-later** — see [`LICENSE`](LICENSE).
+This follows from the bundled lock-screen QML, which carries
+`SPDX-License-Identifier: GPL-2.0-or-later` and is derived from KDE and
+Nobara sources.
+
+Some bundled components have their own licenses:
+
+| Component | License | Origin |
+|---|---|---|
+| `icons/nineicons-redux-v0.6/` | MIT | Copyright (c) 2022 aitees — see `icons/nineicons-redux-v0.6/LICENSE` |
+| `fonts/ChicagoFLF.ttf` | public domain | Robin Casady |
+| Lock-screen QML in `look-and-feel/*/contents/lockscreen/` | GPL-2.0-or-later | KDE / Nobara upstream |

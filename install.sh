@@ -76,6 +76,63 @@ fi
 echo "Installing selected components..."
 echo ""
 
+# ── Backup ────────────────────────────────────────────────────────────────────
+# Applying a Global Theme with the "Desktop and window layout" box ticked
+# replaces every panel, dock and widget the user has set up. Plasma warns
+# about it, but there is no way back once it happened — unless we kept a
+# copy. Also record the theme-related settings so uninstall can restore
+# them instead of leaving the config pointing at deleted directories.
+if $do_kde || $do_icons; then
+    BACKUP_DIR="$HOME/.local/share/niceos9/backup-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$BACKUP_DIR"
+
+    for f in plasma-org.kde.plasma.desktop-appletsrc plasmarc kdeglobals \
+             kwinrc kscreenlockerrc ksplashrc kcminputrc; do
+        [ -f "$HOME/.config/$f" ] && cp -a "$HOME/.config/$f" "$BACKUP_DIR/"
+    done
+
+    # A restore script beats a folder full of files nobody knows what to do with.
+    cat > "$BACKUP_DIR/restore.sh" <<'RESTORE_EOF'
+#!/usr/bin/env bash
+# Restores the desktop configuration as it was before NiceOS9 was installed.
+# Log out and back in afterwards for the changes to take effect.
+set -e
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "Restoring configuration from $HERE ..."
+for f in "$HERE"/*; do
+    name="$(basename "$f")"
+    case "$name" in restore.sh|README) continue ;; esac
+    cp -a "$f" "$HOME/.config/$name"
+    echo "  $name"
+done
+
+rm -f "$HOME/.cache/plasma_theme_"*.kcache "$HOME/.cache/ksvg-elements"
+
+echo ""
+echo "Done. Log out and back in to apply."
+RESTORE_EOF
+    chmod +x "$BACKUP_DIR/restore.sh"
+
+    cat > "$BACKUP_DIR/README" <<READ_EOF
+Backup taken before installing NiceOS9 on $(date).
+
+Contains your panel layout (plasma-org.kde.plasma.desktop-appletsrc) and the
+theme-related config files, as they were before the install.
+
+To go back to this state:
+
+    $BACKUP_DIR/restore.sh
+
+then log out and back in.
+READ_EOF
+
+    echo "Backup of your current desktop configuration:"
+    echo "  $BACKUP_DIR"
+    echo "  Restore with: $BACKUP_DIR/restore.sh"
+    echo ""
+fi
+
 # ── KDE theme ─────────────────────────────────────────────────────────────────
 if $do_kde; then
     echo "Removing stale KDE theme files from previous installs..."
@@ -115,7 +172,7 @@ if $do_kde; then
     mkdir -p "$HOME/.local/share/wallpapers"
     cp -r "$SCRIPT_DIR/wallpapers/NiceOS9" "$HOME/.local/share/wallpapers/"
 
-    _KSL_WALL="file://$HOME/.local/share/wallpapers/NiceOS9/dark/Flowing_Indigo_Wave.png"
+    _KSL_WALL="file://$HOME/.local/share/wallpapers/NiceOS9/dark/Flowing_Deepblue_Waves.png"
     kwriteconfig6 --file kscreenlockerrc \
         --group "Greeter" --group "Wallpaper" --group "org.kde.image" --group "General" \
         --key "Image" "$_KSL_WALL"
