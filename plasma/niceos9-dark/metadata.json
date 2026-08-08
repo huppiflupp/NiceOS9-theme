@@ -2,16 +2,18 @@
     "KPlugin": {
         "Authors": [
             {
+                "Email": "huppiflupp@users.noreply.github.com",
                 "Name": "huppiflupp"
             }
         ],
         "Category": "",
-        "Description": "NiceOS9 Dark — dark platinum panel for NiceOS9 dark look-and-feel",
+        "Description": "NiceOS9 Dark — legacy dark platinum panel shell theme for the NiceOS9 dark look-and-feel",
         "EnabledByDefault": true,
         "Id": "niceos9-dark",
-        "License": "GPLv2+",
+        "License": "GPL-2.0-or-later",
         "Name": "NiceOS9 Dark",
-        "Version": "2.0"
+        "Version": "5.3.0",
+        "Website": "https://github.com/huppiflupp/NiceOS9-theme"
     },
     "X-Plasma-API": "6.0"
 }

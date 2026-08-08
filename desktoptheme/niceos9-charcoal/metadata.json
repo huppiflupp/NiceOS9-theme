@@ -2,6 +2,7 @@
     "KPlugin": {
         "Authors": [
             {
+                "Email": "huppiflupp@users.noreply.github.com",
                 "Name": "huppiflupp"
             }
         ],
@@ -9,9 +10,10 @@
         "Description": "NiceOS9 Charcoal desktop theme — Mac OS 8 near-black chrome with platinum window content",
         "EnabledByDefault": true,
         "Id": "niceos9-charcoal",
-        "License": "GPLv2+",
+        "License": "GPL-2.0-or-later",
         "Name": "NiceOS9 Charcoal",
-        "Version": "1.0"
+        "Version": "5.3.0",
+        "Website": "https://github.com/huppiflupp/NiceOS9-theme"
     },
     "X-Plasma-API": "6.0"
 }

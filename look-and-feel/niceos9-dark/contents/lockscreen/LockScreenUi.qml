@@ -153,7 +153,7 @@ Item {
         // This keeps the lock screen independent from the user's configured desktop wallpaper.
         Image {
             anchors.fill: parent
-            source: "file://HOME_PLACEHOLDER/.local/share/wallpapers/NiceOS9/dark/Flowing_Indigo_Wave.png"
+            source: "file://HOME_PLACEHOLDER/.local/share/wallpapers/NiceOS9/dark/Flowing_Deepblue_Waves.png"
             fillMode: Image.PreserveAspectCrop
         }
 

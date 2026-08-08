@@ -186,7 +186,7 @@ composite_focus_scene() {
         "$out"
 }
 
-composite_scene "$WALLPAPER_DIR/dark/Flowing_Indigo_Wave.png" dark "$SCREENSHOT_DIR/niceos9_dark_01.png"
+composite_scene "$WALLPAPER_DIR/dark/Flowing_Deepblue_Waves.png" dark "$SCREENSHOT_DIR/niceos9_dark_01.png"
 composite_dual_scene "$WALLPAPER_DIR/dark/NiceOS9 darker1.png" dark "$SCREENSHOT_DIR/niceos9_dark_02.png"
 composite_focus_scene "$WALLPAPER_DIR/dark/Flowing_Deepblue_Waves.png" dark "$SCREENSHOT_DIR/niceos9_dark_03.png"
 

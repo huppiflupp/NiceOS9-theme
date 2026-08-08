@@ -2,16 +2,18 @@
     "KPlugin": {
         "Authors": [
             {
+                "Email": "huppiflupp@users.noreply.github.com",
                 "Name": "huppiflupp"
             }
         ],
         "Category": "",
-        "Description": "NiceOS9 Dark desktop theme with a classic Mac OS 8/9 style panel",
+        "Description": "NiceOS9 Dark desktop theme with a classic Mac OS 8/9 style panel — dark warm charcoal panel background with cream white text",
         "EnabledByDefault": true,
         "Id": "niceos9-dark",
-        "License": "GPLv2+",
+        "License": "GPL-2.0-or-later",
         "Name": "NiceOS9 Dark",
-        "Version": "2.1"
+        "Version": "5.3.0",
+        "Website": "https://github.com/huppiflupp/NiceOS9-theme"
     },
     "X-Plasma-API": "6.0"
 }

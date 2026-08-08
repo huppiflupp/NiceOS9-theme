@@ -3,15 +3,16 @@
     "KPlugin": {
         "Authors": [
             {
-                "Email": "",
-                "Name": ""
+                "Email": "huppiflupp@users.noreply.github.com",
+                "Name": "huppiflupp"
             }
         ],
-        "Description": "",
+        "Description": "Mac OS 9 Platinum global theme, dark variant — warm charcoal panel and windows, ChicagoNineDark window decoration",
         "Id": "niceos9-dark",
-        "License": "",
+        "License": "GPL-2.0-or-later",
         "Name": "NiceOS9 dark",
-        "Website": ""
+        "Version": "5.3.0",
+        "Website": "https://github.com/huppiflupp/NiceOS9-theme"
     },
     "Keywords": "Desktop;Workspace;Appearance;Look and Feel;",
     "X-Plasma-APIVersion": "2",
